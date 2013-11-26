@@ -6,7 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using System.Net.Mime;
 namespace browser
 {
     public class ReEncodingException : Exception
@@ -14,12 +14,13 @@ namespace browser
     }
     class Core
     {
+        public static Render render = new Render();
         static public List<UI> UIList;
         static public string encode = "utf-8";
         static public int ScreenBuffSizeX = 80;
         static public int ScreenBuffSizeY = 25;
                 public static string url;
-                public static string ContentType = "text/html";
+                public static ContentType ContentType = new ContentType("text/html");
         static public HtmlNodeCollection getHtml(HtmlNodeCollection node)
         {
             return getHtml(node, new StateClass());
@@ -28,8 +29,8 @@ namespace browser
         static public HtmlNodeCollection getHtml(HtmlNodeCollection node, StateClass state, bool renderonly = false)// State nextstate = 0, int margin = 0)
         {
             int count = 0;
-            ConsoleColor OldForeColor = RenderColor.ForegroundColor;
-            ConsoleColor OldBackColor = RenderColor.BackgroundColor;
+            ConsoleColor OldForeColor = render.Color.ForegroundColor;
+            ConsoleColor OldBackColor = render.Color.BackgroundColor;
             bool backColor = false;
             foreach (var i in node)
             {
@@ -60,29 +61,31 @@ namespace browser
                         if (i.GetAttributeValue("content", "") != "")
                         {
                             var url = i.GetAttributeValue("content", "");
-                            var urls = i.GetAttributeValue("content", "").ToUpper();
-                            if (url.ToUpper().IndexOf("URL=") != -1)
+                            var content = new ContentType(url);
+                            //var urls = i.GetAttributeValue("content", "").ToUpper();
+                            if(content.Parameters.ContainsKey("URL"))
                             {
                                 if (!renderonly) UIList.Add(new UI
                                 {
                                     Node = i,
-                                    CursorTop = Render.CursorTop,
-                                    CursorLeft = Render.CursorLeft,
+                                    CursorTop = render.CursorTop,
+                                    CursorLeft = render.CursorLeft,
                                     UIType = UIType.Meta,
                                     State = state,
-                                    Text = ("meta[" + url.Substring(urls.IndexOf("URL=") + 4) + "]").ToUpper(),
-                                    Value = url.Substring(urls.IndexOf("URL=") + 4),
+                                    Text = ("meta[" + content.Parameters["URL"] + "]"),
+                                    Value = content.Parameters["URL"],
                                 });
-                                Render.WriteLink("meta[" + url.Substring(urls.IndexOf("URL=") + 4) + "]");
+                                render.WriteLink("meta[" + content.Parameters["URL"] + "]");
                             }
                         }
                     }
                     if (i.GetAttributeValue("content", "") != "")
                     {
                         var enc = i.GetAttributeValue("content", "");
-                        if (enc.IndexOf("charset=") != -1)
+                        var content = new ContentType(enc);
+                        if(!String.IsNullOrEmpty(content.CharSet))
                         {
-                            var enc2 = enc.Substring(enc.IndexOf("charset=") + 8);
+                            var enc2 = content.CharSet;
                             try
                             {
                                 if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc2).CodePage)
@@ -125,53 +128,61 @@ namespace browser
                 {
                     if (i.GetAttributeValue("color", "") != "")
                     {
-                        OldForeColor = RenderColor.ForegroundColor;
-                        RenderColor.ConsoleForeColorRGB(ColorTranslator.FromHtml(i.GetAttributeValue("color", "")));
-                        if (RenderColor.BackgroundColor == RenderColor.ForegroundColor)
+                        OldForeColor = render.Color.ForegroundColor;
+                        try
                         {
-                            if ((int)RenderColor.ForegroundColor == 0)
+                            render.Color.ConsoleForeColorRGB(ColorTranslator.FromHtml(i.GetAttributeValue("color", "")));
+                            if (render.Color.BackgroundColor == render.Color.ForegroundColor)
                             {
-                                RenderColor.BackgroundColor = (ConsoleColor)15;
-                            }else
-                            if ((int)RenderColor.ForegroundColor == 15)
-                            {
-                                RenderColor.BackgroundColor = (ConsoleColor)0;
-                            }else
-                                RenderColor.BackgroundColor = (ConsoleColor)(int)RenderColor.ForegroundColor+1;
-                            backColor = true;
+                                if ((int)render.Color.ForegroundColor == 0)
+                                {
+                                    render.Color.BackgroundColor = (ConsoleColor)15;
+                                }
+                                else
+                                    if ((int)render.Color.ForegroundColor == 15)
+                                    {
+                                        render.Color.BackgroundColor = (ConsoleColor)0;
+                                    }
+                                    else
+                                        render.Color.BackgroundColor = (ConsoleColor)(int)render.Color.ForegroundColor + 1;
+                                backColor = true;
+                            }
+                        }catch
+                        {
+                            // blown は Int32 の有効な値ではありません。
                         }
                     }
                 }
                 #region(h)
                 if (i.Name == "h1")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 if (i.Name == "h2")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 if (i.Name == "h3")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 if (i.Name == "h4")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 if (i.Name == "h5")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 if (i.Name == "h6")
                 {
-                    Render.WriteLine();
-                    Render.WritePre(" ");
+                    render.WriteLine();
+                    render.WritePre(" ");
                 }
                 #endregion
                 if (i.Name == "table")
@@ -185,12 +196,12 @@ namespace browser
                 }
                 if (i.Name == "li")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                     if (state.List)
                     {
 
                     }
-                    Render.WritePre(new string(' ', state.Margin) + "+");
+                    render.WritePre(new string(' ', state.Margin) + "+");
                     state.List = true;
                 }
                 if (i.Name == "pre")
@@ -211,9 +222,10 @@ namespace browser
                         if (!renderonly) UIList.Add(new UI
                         {
                             Node = i,
-                            CursorTop = Render.CursorTop,
-                            CursorLeft = Render.CursorLeft,
+                            CursorTop = render.CursorTop,
+                            CursorLeft = render.CursorLeft,
                             UIType = UIType.Link,
+                            Value = i.GetAttributeValue("href", ""),
                             State = state.Clone()
                         });
                     }
@@ -222,12 +234,12 @@ namespace browser
 
                 if (i.Name == "#text")
                 {
-                    if (state.A) Render.WriteLink(i.InnerText);
+                    if (state.A) render.WriteLink(i.InnerText);
                     else
                         if (state.Pre)
-                            Render.WritePre(i.InnerText);
+                            render.WritePre(i.InnerText);
                         else
-                            if (!state.None) Render.Write(i.InnerText.Replace("\n", ""));
+                            if (!state.None) render.Write(i.InnerText.Replace("\n", ""));
 
                     /*if (i.NextSibling != null)
                         if (i.NextSibling.Name == "title" || i.NextSibling.Name == "option" || i.NextSibling.Name == "a"
@@ -237,15 +249,15 @@ namespace browser
                 }
                 if (i.Name == "br")
                 {
-                    Render.WriteLine();
-                    if (state.Button) Render.CursorLeft = state.ButtonUI.CursorLeft;
-                    Render.WritePre(new string(' ', state.Margin));
+                    render.WriteLine();
+                    if (state.Button) render.CursorLeft = state.ButtonUI.CursorLeft;
+                    render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dd")
                 {
                     state.Margin = 4;//margin = 4;
-                    Render.WriteLine();
-                    Render.WritePre(new string(' ', state.Margin));
+                    render.WriteLine();
+                    render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dt")
                 {
@@ -253,29 +265,29 @@ namespace browser
                 }
                 if (i.Name == "hr")
                 {
-                    Render.WriteLine();
-                    Render.WriteLine("―――――――――――――――――――――――――――――――――――――――");
+                    render.WriteLine();
+                    render.WriteLine("―――――――――――――――――――――――――――――――――――――――");
                 }
 
 
                 if (i.Name == "q")
                 {
-                    Render.Write("\"");
+                    render.Write("\"");
                 }
                 if (i.Name == "img")
                 {
                     string alt = i.GetAttributeValue("alt", "");
                     if (alt == "") alt = "[img]";
-                    if (state.A) Render.WriteLink(alt);
+                    if (state.A) render.WriteLink(alt);
                     else
                     {
                         if (!renderonly)Core.UIList.Add(new UI
                         {
                             Node = i,
-                            CursorLeft = Render.CursorLeft,
-                            CursorTop = Render.CursorTop,
-                            CursorLeft2 = Render.CursorLeft,
-                            CursorTop2 = Render.CursorTop,
+                            CursorLeft = render.CursorLeft,
+                            CursorTop = render.CursorTop,
+                            CursorLeft2 = render.CursorLeft,
+                            CursorTop2 = render.CursorTop,
                             Text = alt,
                             Name = "",
                             Value = i.GetAttributeValue("src", ""),
@@ -283,7 +295,7 @@ namespace browser
                             State = state,
                             Form = state.Form,
                         });
-                        Render.Write(alt);
+                        render.Write(alt);
                     }
                 }
                 if (i.Name == "form")
@@ -314,10 +326,10 @@ namespace browser
                             if (!renderonly && state.Form!=null) state.Form.UIList.Add(new UI
                             {
                                 Node = i,
-                                CursorLeft = Render.CursorLeft,
-                                CursorTop = Render.CursorTop,
-                                CursorLeft2 = Render.CursorLeft,
-                                CursorTop2 = Render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                CursorTop = render.CursorTop,
+                                CursorLeft2 = render.CursorLeft,
+                                CursorTop2 = render.CursorTop,
                                 Text = "",
                                 Name = i.GetAttributeValue("name", ""),
                                 Value = i.GetAttributeValue("value", ""),
@@ -337,10 +349,10 @@ namespace browser
                                 if (!renderonly) UIList.Add(new UI
                                 {
                                     Node = i,
-                                    CursorLeft = Render.CursorLeft,
-                                    CursorTop = Render.CursorTop,
-                                    CursorLeft2 = Render.CursorLeft,
-                                    CursorTop2 = Render.CursorTop,
+                                    CursorLeft = render.CursorLeft,
+                                    CursorTop = render.CursorTop,
+                                    CursorLeft2 = render.CursorLeft,
+                                    CursorTop2 = render.CursorTop,
                                     Text = size,
                                     UIType = UIType.LineTextBox,
                                     State = state,
@@ -349,7 +361,7 @@ namespace browser
                                     Name = i.GetAttributeValue("name", "")
                                 });
                                 //SetBackgroundColor(ConsoleColor.White);
-                                Render.Write("[________]");
+                                render.Write("[________]");
                             }
                             else
                             {
@@ -361,10 +373,10 @@ namespace browser
                                     if (!renderonly) UIList.Add(new UI
                                     {
                                         Node = i,
-                                        CursorLeft = Render.CursorLeft,
-                                        CursorTop = Render.CursorTop,
-                                        CursorLeft2 = Render.CursorLeft,
-                                        CursorTop2 = Render.CursorTop,
+                                        CursorLeft = render.CursorLeft,
+                                        CursorTop = render.CursorTop,
+                                        CursorLeft2 = render.CursorLeft,
+                                        CursorTop2 = render.CursorTop,
                                         Text = size,
                                         UIType = UIType.LineTextBox,
                                         State = state,
@@ -372,7 +384,7 @@ namespace browser
                                         LineTextBox = new LineTextBoxUI { Size = siz },
                                         Name = i.GetAttributeValue("name", "")
                                     });
-                                    Render.Write("[" + new string('_', siz) + "]");
+                                    render.Write("[" + new string('_', siz) + "]");
                                 }
                                 catch { }
                             }
@@ -390,10 +402,10 @@ namespace browser
                                 if (!renderonly) UIList.Add(new UI
                                 {
                                     Node = i,
-                                    CursorLeft = Render.CursorLeft,
-                                    CursorTop = Render.CursorTop,
-                                    CursorLeft2 = Render.CursorLeft,
-                                    CursorTop2 = Render.CursorTop,
+                                    CursorLeft = render.CursorLeft,
+                                    CursorTop = render.CursorTop,
+                                    CursorLeft2 = render.CursorLeft,
+                                    CursorTop2 = render.CursorTop,
                                     Text = size,
                                     UIType = UIType.LineTextBox,
                                     State = state,
@@ -402,7 +414,7 @@ namespace browser
                                     Name = i.GetAttributeValue("name", "")
                                 });
                                 //SetBackgroundColor(ConsoleColor.White);
-                                Render.Write("[________]");
+                                render.Write("[________]");
                             }
                             else
                             {
@@ -414,10 +426,10 @@ namespace browser
                                     if (!renderonly) UIList.Add(new UI
                                     {
                                         Node = i,
-                                        CursorLeft = Render.CursorLeft,
-                                        CursorTop = Render.CursorTop,
-                                        CursorLeft2 = Render.CursorLeft,
-                                        CursorTop2 = Render.CursorTop,
+                                        CursorLeft = render.CursorLeft,
+                                        CursorTop = render.CursorTop,
+                                        CursorLeft2 = render.CursorLeft,
+                                        CursorTop2 = render.CursorTop,
                                         Text = size,
                                         UIType = UIType.LineTextBox,
                                         State = state,
@@ -425,7 +437,7 @@ namespace browser
                                         LineTextBox = new LineTextBoxUI { Size = siz },
                                         Name = i.GetAttributeValue("name", "")
                                     });
-                                    Render.Write("[" + new string('_', siz) + "]");
+                                    render.Write("[" + new string('_', siz) + "]");
                                 }
                                 catch { }
                             }
@@ -433,7 +445,7 @@ namespace browser
                             //OldBackgroundColor();
                             break;
                         case "isindex":
-                            Render.Write(i.GetAttributeValue("prompt", "") + "[________]");
+                            render.Write(i.GetAttributeValue("prompt", "") + "[________]");
                             break;
                         case "submit":
                             if (!renderonly && state.Form != null)
@@ -441,10 +453,10 @@ namespace browser
                             if (!renderonly) UIList.Add(new UI
                             {
                                 Node = i,
-                                CursorLeft = Render.CursorLeft,
-                                CursorTop = Render.CursorTop,
-                                CursorLeft2 = Render.CursorLeft + i.GetAttributeValue("value", "").Length,
-                                CursorTop2 = Render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                CursorTop = render.CursorTop,
+                                CursorLeft2 = render.CursorLeft + i.GetAttributeValue("value", "").Length,
+                                CursorTop2 = render.CursorTop,
                                 Text = i.GetAttributeValue("value", ""),
                                 UIType = UIType.Button,
                                 State = state,
@@ -452,7 +464,7 @@ namespace browser
                                 Name = i.GetAttributeValue("name", ""),
                                 Value = i.GetAttributeValue("value", ""),
                             });
-                            Render.RenderButton(i.GetAttributeValue("value", ""));
+                            render.RenderButton(i.GetAttributeValue("value", ""));
                             break;
                         case "button":
                             if (!renderonly && state.Form != null)
@@ -460,10 +472,10 @@ namespace browser
                             if (!renderonly) UIList.Add(new UI
                             {
                                 Node = i,
-                                CursorLeft = Render.CursorLeft,
-                                CursorTop = Render.CursorTop,
-                                CursorLeft2 = Render.CursorLeft + i.GetAttributeValue("value", "").Length,
-                                CursorTop2 = Render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                CursorTop = render.CursorTop,
+                                CursorLeft2 = render.CursorLeft + i.GetAttributeValue("value", "").Length,
+                                CursorTop2 = render.CursorTop,
                                 Text = i.GetAttributeValue("value", ""),
                                 UIType = UIType.Button,
                                 State = state,
@@ -471,7 +483,7 @@ namespace browser
                                 Name = i.GetAttributeValue("name", ""),
                                 Value = i.GetAttributeValue("value", ""),
                             });
-                            Render.RenderButton(i.GetAttributeValue("value", ""));
+                            render.RenderButton(i.GetAttributeValue("value", ""));
                             break;
                         case "":
                             if (!renderonly && state.Form != null)
@@ -480,10 +492,10 @@ namespace browser
                                 UIList.Add(new UI
                                 {
                                     Node = i,
-                                    CursorLeft = Render.CursorLeft,
-                                    CursorTop = Render.CursorTop,
-                                    CursorLeft2 = Render.CursorLeft + 10,
-                                    CursorTop2 = Render.CursorTop,
+                                    CursorLeft = render.CursorLeft,
+                                    CursorTop = render.CursorTop,
+                                    CursorLeft2 = render.CursorLeft + 10,
+                                    CursorTop2 = render.CursorTop,
                                     Text = "",
                                     State = state,
                                     Form = state.Form,
@@ -491,7 +503,7 @@ namespace browser
                                     LineTextBox = new LineTextBoxUI(),
                                     Name = i.GetAttributeValue("name", "")
                                 });
-                            Render.Write("[________]");
+                            render.Write("[________]");
                             break;
                         case "image":
                             if (!renderonly && state.Form != null)
@@ -499,10 +511,10 @@ namespace browser
                             if (!renderonly) UIList.Add(new UI
                             {
                                 Node = i,
-                                CursorLeft = Render.CursorLeft,
-                                CursorTop = Render.CursorTop,
-                                CursorLeft2 = Render.CursorLeft + i.GetAttributeValue("alt", "").Length,
-                                CursorTop2 = Render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                CursorTop = render.CursorTop,
+                                CursorLeft2 = render.CursorLeft + i.GetAttributeValue("alt", "").Length,
+                                CursorTop2 = render.CursorTop,
                                 Text = i.GetAttributeValue("alt", ""),
                                 UIType = UIType.Button,
                                 State = state,
@@ -510,10 +522,10 @@ namespace browser
                                 Name = i.GetAttributeValue("name", ""),
                                 Value = i.GetAttributeValue("alt", ""),
                             });
-                            Render.Write("[" + i.GetAttributeValue("alt", "") + "]");
+                            render.Write("[" + i.GetAttributeValue("alt", "") + "]");
                             break;
                         case "reset":
-                            Render.Write("[" + i.GetAttributeValue("value", "") + "]");
+                            render.Write("[" + i.GetAttributeValue("value", "") + "]");
                             break;
                         case "checkbox":
                             if (!renderonly && state.Form != null)
@@ -522,27 +534,27 @@ namespace browser
                                 UIList.Add(new UI
                                 {
                                     Node = i,
-                                    CursorLeft = Render.CursorLeft,
-                                    CursorTop = Render.CursorTop,
-                                    CursorLeft2 = Render.CursorLeft,
-                                    CursorTop2 = Render.CursorTop,
+                                    CursorLeft = render.CursorLeft,
+                                    CursorTop = render.CursorTop,
+                                    CursorLeft2 = render.CursorLeft,
+                                    CursorTop2 = render.CursorTop,
                                     Text = "",
                                     State = state,
                                     UIType = UIType.CheckBox,
                                     Form = state.Form,
                                     Name = i.GetAttributeValue("name", "")
                                 });
-                            Render.Write("[ ]");
+                            render.Write("[ ]");
                             break;
                         case "radio":
                             string a = i.GetAttributeValue("checked", "");
                             if (a == "checked")
-                                Render.Write("(x)");
+                                render.Write("(x)");
                             else
-                                Render.Write("( )");
+                                render.Write("( )");
                             break;
                         case "file":
-                            Render.Write("[ファイルを選択]選択されていません");
+                            render.Write("[ファイルを選択]選択されていません");
                             break;
                     }
                 }
@@ -556,10 +568,10 @@ namespace browser
                         var ui = new UI
                             {
                                 Node = i,
-                                CursorLeft = Render.CursorLeft,
-                                CursorTop = Render.CursorTop,
-                                CursorLeft2 = Render.CursorLeft + i.GetAttributeValue("value", "").Length,
-                                CursorTop2 = Render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                CursorTop = render.CursorTop,
+                                CursorLeft2 = render.CursorLeft + i.GetAttributeValue("value", "").Length,
+                                CursorTop2 = render.CursorTop,
                                 Text = i.GetAttributeValue("value", ""),
                                 UIType = UIType.ButtonEx,
 
@@ -572,7 +584,7 @@ namespace browser
                         UIList.Add(ui);
                     }
 
-                    Render.Write("[");
+                    render.Write("[");
                 }
                 if (i.Name == "textarea")
                 {
@@ -580,18 +592,18 @@ namespace browser
                     string cols = i.GetAttributeValue("cols", "");
                     if (rows == null || cols == null
                         || rows == "" || cols == "")
-                        Render.Write("[________]");
+                        render.Write("[________]");
                     else
                     {
                         try
                         {
                             int sizx = Convert.ToInt32(cols);
                             int sizy = Convert.ToInt32(rows);
-                            int x = Render.CursorLeft;
+                            int x = render.CursorLeft;
                             for (int siz = 0; siz < sizy; siz++)
                             {
-                                Render.CursorLeft = x;
-                                Render.WriteLine("|" + new string('_', sizx) + "|");
+                                render.CursorLeft = x;
+                                render.WriteLine("|" + new string('_', sizx) + "|");
                             }
                         }
                         catch { }
@@ -604,10 +616,10 @@ namespace browser
                     state.SelectUI = new UI
                     {
                         Node = i,
-                        CursorLeft = Render.CursorLeft,
-                        CursorTop = Render.CursorTop,
-                        CursorLeft2 = Render.CursorLeft,
-                        CursorTop2 = Render.CursorTop,
+                        CursorLeft = render.CursorLeft,
+                        CursorTop = render.CursorTop,
+                        CursorLeft2 = render.CursorLeft,
+                        CursorTop2 = render.CursorTop,
                         Text = "",
                         State = state,
                         UIType = UIType.Select,
@@ -635,7 +647,7 @@ namespace browser
                     if (i.NextSibling != null)
                     {
                         //Render.Write(i.NextSibling.InnerText + " ");
-                        state.SelectUI.Select.SelectList.Add(Render.Replace(i.NextSibling.InnerText));
+                        state.SelectUI.Select.SelectList.Add(render.Replace(i.NextSibling.InnerText));
                         if (i.GetAttributeValue("value", "") != "") state.SelectUI.Select.ValueList.Add(i.GetAttributeValue("value", ""));
                         if (i.GetAttributeValue("value", "") == "") state.SelectUI.Select.ValueList.Add(i.NextSibling.InnerText);
                     }
@@ -666,15 +678,15 @@ namespace browser
                 }
                 if (i.Name == "p" && i.Closed)
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "q" && i.Closed)
                 {
-                    Render.Write("\"");
+                    render.Write("\"");
                 }
                 if (i.Name == "button" && i.Closed)
                 {
-                    Render.Write("]");
+                    render.Write("]");
                     if(!renderonly)state.ButtonUI = null;
                     state.Button = false;
                 }
@@ -697,17 +709,17 @@ namespace browser
                         //__I__++;
                     }
                     state.SelectUI.Value = state.SelectUI.Select.ValueList[0];
-                    Render.RenderSelect(state.SelectUI.Select.SelectList[state.SelectUI.Select.Select],
+                    render.RenderSelect(state.SelectUI.Select.SelectList[state.SelectUI.Select.Select],
                         state.SelectUI.Select.MaxLength,
                         state.SelectUI.Select.Length[state.SelectUI.Select.Select]
                         );
                 }
                 if (i.Name == "font"&i.Closed)
                 {
-                    RenderColor.ForegroundColor = OldForeColor;
+                    render.Color.ForegroundColor = OldForeColor;
                     if (backColor)
                     {
-                        RenderColor.BackgroundColor = OldBackColor;
+                        render.Color.BackgroundColor = OldBackColor;
                     }
                 }
                 if (i.Name == "ul")
@@ -721,36 +733,36 @@ namespace browser
                 }
                 if (i.Name == "tr" && i.Closed)
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "th" && i.Closed)
                 {
-                    Render.WriteTab();
+                    render.WriteTab();
                 }
                 #region(h)
                 if (i.Name == "h1")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "h2")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "h3")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "h4")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "h5")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 if (i.Name == "h6")
                 {
-                    Render.WriteLine();
+                    render.WriteLine();
                 }
                 #endregion
                 count++;

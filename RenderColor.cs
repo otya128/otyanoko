@@ -11,182 +11,187 @@ namespace browser
 {
     class RenderColor
     {
-        static public ConsoleColor DefaultBackColor = ConsoleColor.Gray;
+        public static ConsoleColor DefaultBackColor = ConsoleColor.Gray;
         public static ConsoleColor DefaultForeColor = ConsoleColor.Black;
-        static public ConsoleColor DefaultLinkBackColor = DefaultBackColor;
-        public static ConsoleColor DefaultLinkForeColor = ConsoleColor.DarkBlue;
-        static public ConsoleColor DefaultSelectLinkBackColor = ConsoleColor.White;
-        public static ConsoleColor DefaultSelectLinkForeColor = ConsoleColor.DarkBlue;
-        static public ConsoleColor ForegroundColor
+        public ConsoleColor DefaultLinkBackColor = DefaultBackColor;
+        public ConsoleColor DefaultLinkForeColor = ConsoleColor.DarkBlue;
+        public ConsoleColor DefaultSelectLinkBackColor = ConsoleColor.White;
+        public ConsoleColor DefaultSelectLinkForeColor = ConsoleColor.DarkBlue;
+        Render render;
+        public RenderColor(Render rend)
+        {
+            this.render = rend;
+        }
+        public ConsoleColor ForegroundColor
         {
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 return (ConsoleColor)(csbi.wAttributes & 0x000F);
                 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
                 //Console.BackgroundColor = cc;
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
                 //ForegroundColorOld = Console.ForegroundColor;
             }
         }
-        public static ConsoleColor BackgroundColor
+        public ConsoleColor BackgroundColor
         {
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 return (ConsoleColor)((csbi.wAttributes & 0x00F0)>>4);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0xFF0F)>>4);
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
             }
 
         }
         /// <summary>
         /// Oldは変更しない
         /// </summary>
-        static public ConsoleColor ForegroundColor_
+        public ConsoleColor ForegroundColor_
         {
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 return (ConsoleColor)(csbi.wAttributes & 0x000F);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
             }
         }
         /// <summary>
         /// Oldは変更しない
         /// </summary>
-        public static ConsoleColor BackgroundColor_
+        public ConsoleColor BackgroundColor_
         {
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
                 return (ConsoleColor)((csbi.wAttributes & 0x00F0)>>4);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
             }
         }
-        static public ConsoleColor ForegroundColorOld = Console.ForegroundColor;
-        static public void SetForegroundColor(ConsoleColor cc)
+        public ConsoleColor ForegroundColorOld = Console.ForegroundColor;
+        public void SetForegroundColor(ConsoleColor cc)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
             //Console.BackgroundColor = cc;
-            ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)cc));
+            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)cc));
             //ForegroundColorOld = Console.ForegroundColor;
             Console.ForegroundColor = cc;
         }
-        static public void SetForegroundColor(Color cc)
+        public void SetForegroundColor(Color cc)
         {
 
             ForegroundColorOld = Console.ForegroundColor;
             ConsoleForeColorRGB(cc);
         }
-        static public void SetForegroundColor()
+        public void SetForegroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
             //ForegroundColorOld = Console.ForegroundColor;
         }
-        static public void OldForegroundColor()
+        public void OldForegroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
-            ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)ForegroundColorOld));
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)ForegroundColorOld));
             //Console.ForegroundColor = ForegroundColorOld;
         }
-        static public ConsoleColor BackgroundColorOld = Console.BackgroundColor;
-        static public void SetBackgroundColor()
+        public ConsoleColor BackgroundColorOld = Console.BackgroundColor;
+        public void SetBackgroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);
-            ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) >> 4));//Console.BackgroundColor;
+            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) >> 4));//Console.BackgroundColor;
         }
-        static public void SetBackgroundColor(ConsoleColor cc)
+        public void SetBackgroundColor(ConsoleColor cc)
         {
             var csbi=new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);//Console.BackgroundColor;
             Console.BackgroundColor = cc;
-            ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)cc << 4)));
+            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)cc << 4)));
         }
-        static public void SetBackgroundColor(Color cc)
+        public void SetBackgroundColor(Color cc)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);//BackgroundColorOld = Console.BackgroundColor;
             ConsoleBackColorRGB(cc);
         }
-        static public void OldBackgroundColor()
+        public void OldBackgroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
-            ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)BackgroundColorOld << 4)));
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)BackgroundColorOld << 4)));
             //Console.BackgroundColor = BackgroundColorOld;
         }
-        public static void ConsoleBackColorRGB(Color color)
+        public void ConsoleBackColorRGB(Color color)
         {
             ConsoleBackColorRGB(color.R, color.G, color.B);
         }
-        public static void ConsoleBackColorRGB(int r, int g, int b)
+        public void ConsoleBackColorRGB(int r, int g, int b)
         {
             Console.BackgroundColor = ConsoleColor.Black;
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(Render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
             int mindex = SearchColor(r, g, b);
-            SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes & 0xFF0F) | (mindex << 4)));
+            SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes & 0xFF0F) | (mindex << 4)));
         }
-        public static void ConsoleForeColorRGB(Color color)
+        public void ConsoleForeColorRGB(Color color)
         {
             ConsoleForeColorRGB(color.R, color.G, color.B);
         }
-        public static void ConsoleForeColorRGB(int r, int g, int b)
+        public void ConsoleForeColorRGB(int r, int g, int b)
         {
             Console.ForegroundColor = ConsoleColor.Black;
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(Render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
             int mindex = SearchColor(r, g, b);
-            SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes/* & 0x1110*/) | mindex));
+            SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes/* & 0x1110*/) | mindex));
         }
-        public static int SearchColor(int r, int g, int b)
+        public int SearchColor(int r, int g, int b)
         {
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(Render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
             double[] s = new double[16];
 
 
@@ -211,14 +216,14 @@ namespace browser
             }
             return mindex;
         }
-        public static void Under(bool flg)
+        public void Under(bool flg)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             if (flg)
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF) | (0x8 << 12)));
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF) | (0x8 << 12)));
             else
-                ConsoleFunctions.SetConsoleTextAttribute(Render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF)));
+                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF)));
             
         }
         [StructLayout(LayoutKind.Sequential)]
@@ -280,7 +285,7 @@ namespace browser
         }
 
         const int STD_OUTPUT_HANDLE = -11;                                        // per WinBase.h
-        internal static readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);    // per WinBase.h
+        internal readonly IntPtr INVALID_HANDLE_VALUE = new IntPtr(-1);    // per WinBase.h
 
         [DllImport("kernel32.dll", SetLastError = true)]
         private static extern IntPtr GetStdHandle(int nStdHandle);

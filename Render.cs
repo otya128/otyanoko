@@ -14,7 +14,14 @@ namespace browser
 {
     class Render
     {
-        static public int CursorLeft
+        public RenderColor Color;
+        public UIRender UI;
+        public Render()
+        {
+            this.Color = new RenderColor(this);
+            this.UI = new UIRender(this);
+        }
+        public int CursorLeft
         {
             get
             {
@@ -27,7 +34,7 @@ namespace browser
                 ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)value, Y = (short)CursorTop });
             }
         }
-        static public int CursorTop
+        public int CursorTop
         {
             get
             {
@@ -40,7 +47,7 @@ namespace browser
                 ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)CursorLeft, Y = (short)value });
             }
         }
-        static public bool CursorVisible
+        public bool CursorVisible
         {
             get
             {
@@ -54,7 +61,7 @@ namespace browser
                 ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
             }
         }
-        public static uint CursorSize
+        public uint CursorSize
         {
             get
             {
@@ -68,7 +75,7 @@ namespace browser
                 ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
             }
         }
-        public static int ScrollY
+        public int ScrollY
         {
             get
             {
@@ -81,68 +88,68 @@ namespace browser
                 user32.SetScrollPos(hWnd, System.Windows.Forms.Orientation.Vertical, value, true);
             }
         }
-        public static bool AutoScreenBuff = true;
-        static public IntPtr hSrceen;
-        static public IntPtr StdHandle;
-        static public IntPtr NULL = IntPtr.Zero;
-        internal static void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,StateClass state)
+        public bool AutoScreenBuff = true;
+        public IntPtr hSrceen;
+        public static IntPtr StdHandle;
+        public static IntPtr NULL = IntPtr.Zero;
+        internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,StateClass state)
         {
             Core.getHtml(htmlNodeCollection, state,true);
         }
-        internal static void RenderHtml(HtmlAgilityPack.HtmlNode htmlNode, StateClass state)
+        internal void RenderHtml(HtmlAgilityPack.HtmlNode htmlNode, StateClass state)
         {
             var hc = new HtmlAgilityPack.HtmlNodeCollection(htmlNode);
             hc.Add(htmlNode);
             Core.getHtml(hc, state, true);
         }
-        internal static void RenderHtmlA(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection, StateClass state)
+        internal void RenderHtmlA(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection, StateClass state)
         {
             var ss = state.Clone();
             ss.RenderA = true;
             Core.getHtml(htmlNodeCollection, ss, true);
         }
 
-        static public void RenderButton(string text)
+        public void RenderButton(string text)
         {
-            Render.Write("[" + text + "]");
+            this.Write("[" + text + "]");
         }
-        static public void RenderButtonColor(string text, ConsoleColor Fore, ConsoleColor Back)
+        public void RenderButtonColor(string text, ConsoleColor Fore, ConsoleColor Back)
         {
-            RenderColor.SetBackgroundColor(Back);
-            RenderColor.SetForegroundColor(Fore);
+            this.Color.SetBackgroundColor(Back);
+            this.Color.SetForegroundColor(Fore);
             RenderButton(text);
-            RenderColor.OldBackgroundColor();
-            RenderColor.OldForegroundColor();
+            this.Color.OldBackgroundColor();
+            this.Color.OldForegroundColor();
         }
-        static public void RenderButtonColor(string text, Color Fore, Color Back)
+        public void RenderButtonColor(string text, Color Fore, Color Back)
         {
-            RenderColor.SetBackgroundColor(Back);
-            RenderColor.SetForegroundColor(Fore);
+            this.Color.SetBackgroundColor(Back);
+            this.Color.SetForegroundColor(Fore);
             RenderButton(text);
-            RenderColor.OldBackgroundColor();
-            RenderColor.OldForegroundColor();
+            this.Color.OldBackgroundColor();
+            this.Color.OldForegroundColor();
         }
 
-        static public void RenderInput(int size = 8)
+        public void RenderInput(int size = 8)
         {
-            Render.WritePre("[" + new string('_', size) + "]");
+            this.WritePre("[" + new string('_', size) + "]");
         }
-        static public void RenderCheckBox(bool cheked)
+        public void RenderCheckBox(bool cheked)
         {
-            Render.WritePre("[" + (cheked ? "x" : " ") + "]");
+            this.WritePre("[" + (cheked ? "x" : " ") + "]");
         }
-        static public void RenderSelect(string item)
+        public void RenderSelect(string item)
         {
-            Render.WritePre("[" + item + "]");
+            this.WritePre("[" + item + "]");
         }
-        static public void RenderSelect(string item, int max,int min)
+        public void RenderSelect(string item, int max,int min)
         {
             if (max < min)
-                Render.WritePre("[" + item.Substring(0,max-1) + ">]");
+                this.WritePre("[" + item.Substring(0, max - 1) + ">]");
             else
-                Render.WritePre("[" + item + new string(' ', max - min) + "]");
+                this.WritePre("[" + item + new string(' ', max - min) + "]");
         }
-        static public void RenderTextBox(string item, int max)
+        public void RenderTextBox(string item, int max)
         {
             byte[] ary1 = Encoding.GetEncoding(932).GetBytes(item);
             int len = ary1.Length;
@@ -151,23 +158,23 @@ namespace browser
                 byte[] ary=new byte[max-1];
                 Array.Copy(ary1, ary, max - 1);
                 int cx = CursorLeft;
-                Render.WritePre("[" + Encoding.GetEncoding(932).GetString(ary));
+                this.WritePre("[" + Encoding.GetEncoding(932).GetString(ary));
                 CursorLeft = cx + max;
-                Render.WritePre(">]");
+                this.WritePre(">]");
             }
             else
-                Render.WritePre("[" + item + new string('_', max - len) + "]");
+                this.WritePre("[" + item + new string('_', max - len) + "]");
         }
-        static public void RenderTextBox()
+        public void RenderTextBox()
         {
-            Render.WritePre("[" + new string('_', LineTextBoxUI.DefaultSize) + "]");
+            this.WritePre("[" + new string('_', LineTextBoxUI.DefaultSize) + "]");
         }
-        static public void RenderTextBox(int siz)
+        public void RenderTextBox(int siz)
         {
-            Render.WritePre("[" + new string('_', siz) + "]");
+            this.WritePre("[" + new string('_', siz) + "]");
         }
-        static public int cursorTop = 0, cursorLeft = 0;
-        static public string Replace(string arg)
+        public int cursorTop = 0, cursorLeft = 0;
+        public string Replace(string arg)
         {
             arg = HttpUtility.HtmlDecode(arg.Replace("\n", "").Replace("\r", "").Replace("\t", "").Replace("  ", "").Replace("  ", "").Replace("&nbsp;", " ").Replace("&ensp;", " ").Replace("&emsp;", " ").Replace("&thinsp;", " "));
 #if TEST
@@ -181,12 +188,12 @@ namespace browser
 #endif
             return arg;
         }
-        static public string ReplacePre(string arg)
+        public string ReplacePre(string arg)
         {
             return HttpUtility.HtmlDecode(arg.Replace("\t", "").Replace("&nbsp;"," "));
         }
-        static public StringBuilder console=new StringBuilder();
-        static public void Scroll(string arg)
+        public StringBuilder console=new StringBuilder();
+        public void Scroll(string arg)
         {
             if (AutoScreenBuff)
             {
@@ -201,50 +208,50 @@ namespace browser
             }
             return;
         }
-        static public void Write(string arg)
+        public void Write(string arg)
         {
             Scroll(arg);//if (Console.BufferHeight < Console.CursorTop + 10) Console.BufferHeight *= 2;
             //console.Append(Replace(arg));
             uint cell;
             arg = Replace(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.Write(Replace(arg));
         }
-        static public void WritePre(string arg)
+        public void WritePre(string arg)
         {
             Scroll(arg);
             //if (Console.BufferHeight < Console.CursorTop + 10) Console.BufferHeight *= 2;
             //console.Append(Replace(arg)); 
             uint cell;
             arg = ReplacePre(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.Write(ReplacePre(arg));
         }
-        static public void WriteLink(string arg)
+        public void WriteLink(string arg)
         {
             Scroll(arg);//if (Console.BufferHeight < Console.CursorTop + 10) Console.BufferHeight *= 2;
-            var c = RenderColor.ForegroundColor;
-            RenderColor.ForegroundColor = ConsoleColor.DarkBlue;
-            RenderColor.Under(true);
+            var c = this.Color.ForegroundColor;
+            this.Color.ForegroundColor = ConsoleColor.DarkBlue;
+            this.Color.Under(true);
             //console.Append(Replace(arg)); 
             //Console.Write(Replace(arg));
             uint cell;
             arg = Replace(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
-            RenderColor.Under(false);
-            RenderColor.ForegroundColor = c;
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            this.Color.Under(false);
+            this.Color.ForegroundColor = c;
             
         }
-        static public void WriteLine(string arg)
+        public void WriteLine(string arg)
         {
             Scroll(arg);//if (Console.BufferHeight < Console.CursorTop + 10) Console.BufferHeight *= 2;
             //console.AppendLine(Replace(arg)); 
             //Console.WriteLine(arg.Replace("\n", ""));
             uint cell;
             arg = Replace(arg)+"\n";
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
-        static public void WriteLine()
+        public void WriteLine()
         {
             //CursorTop++; CursorLeft = 0;
             //if (Console.BufferHeight < Console.CursorTop + 10) Console.BufferHeight *= 2;
@@ -252,26 +259,26 @@ namespace browser
             uint cell;
             string arg = "\n";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.WriteLine();
         }
-        static public void WriteTab()
+        public void WriteTab()
         {
             uint cell;
 
             string arg = "\t";//new String(' ', CursorLeft % 3);//"\t";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
-        static public void WriteTab(int margin)
+        public void WriteTab(int margin)
         {
             uint cell;
 
             string arg = new String(' ', CursorLeft % margin);//"\t";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(Render.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
-        static unsafe public bool Copy(IntPtr hSrceen1, IntPtr hSrceen, short cursorTop_ = -1, short size = -1)
+        unsafe public bool Copy(IntPtr hSrceen1, IntPtr hSrceen, short cursorTop_ = -1, short size = -1)
         {
             if (cursorTop_ == -1) cursorTop_ = 0;
             if (size == -1) size = Convert.ToInt16(Core.ScreenBuffSizeY - 1);
@@ -284,7 +291,7 @@ namespace browser
         /// <param name="hSrceen1">コピー元</param>
         /// <param name="hSrceen">コピー先</param>
         /// <returns></returns>Core.ScreenBuffSizeX
-        static unsafe public bool Copy(IntPtr hSrceen1,IntPtr hSrceen,short cursorTop_,short size,short Top)
+        unsafe public bool Copy(IntPtr hSrceen1,IntPtr hSrceen,short cursorTop_,short size,short Top)
         {
             ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[Core.ScreenBuffSizeX * size];
             var sm = new ConsoleFunctions.SMALL_RECT { Top = cursorTop_, Left = 0, Bottom = Convert.ToInt16(Convert.ToInt16(size) + cursorTop_), Right = (short)Core.ScreenBuffSizeX };
@@ -328,11 +335,11 @@ namespace browser
             
             return true;
         }
-        public static IntPtr CopyToNewBuff()
+        public IntPtr CopyToNewBuff()
         {
             var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
             ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
-            Render.Copy(Render.hSrceen, hSrceen, (short)Render.ScrollY,25, 0);
+            this.Copy(this.hSrceen, hSrceen, (short)this.ScrollY, 25, 0);
             return hSrceen;
         }
 

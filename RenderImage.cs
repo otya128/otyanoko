@@ -12,6 +12,7 @@ namespace browser
 {
     class RenderImage:IDisposable
     {
+        Render render = Core.render;
         public IntPtr handle;
         public IntPtr handle2;
         public Bitmap bmp;
@@ -33,7 +34,7 @@ namespace browser
             Bitmap bitmap = bmp.Clone(
                 new Rectangle(0, 0, bmp.Width, bmp.Height),
                 PixelFormat.Format4bppIndexed
-            );//new Bitmap(moto.Width,moto.Height, PixelFormat.Format4bppIndexed);//0rld8xrc1j6ciipdiw7nhl4jf7v5fkfl.png");//0k73flnknd8sh77tc90hi6tv9cqe6lm3.47.39.png");//test.bmp");
+            );
 
             ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[bitmap.Width * bitmap.Height];
             var c = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, Program.NULL, 1, Program.NULL);
@@ -41,35 +42,19 @@ namespace browser
 
             ConsoleFunctions.SetConsoleScreenBufferSize(c, new ConsoleFunctions.COORD { X = (short)bitmap.Width, Y = (short)bitmap.Height });
 
-            // bitmapのピクセルデータを格納するための配列
-            // byte[,] data = new byte[bitmap.Width, bitmap.Height];
             var color = new Dictionary<Color, int>();
             for (int i = 0; i < bitmap.Palette.Entries.Length; i++)
             {
-                color.Add(bitmap.Palette.Entries[i], RenderColor.SearchColor(bitmap.Palette.Entries[i].R, bitmap.Palette.Entries[i].G, bitmap.Palette.Entries[i].B) << 4);
+                color.Add(bitmap.Palette.Entries[i], render.Color.SearchColor(bitmap.Palette.Entries[i].R, bitmap.Palette.Entries[i].G, bitmap.Palette.Entries[i].B) << 4);
                 //SetScreenColorsApp.SetColor((ConsoleColor)i, bitmap.Palette.Entries[i]);
             }
             int K = 0;
-            //SetColor()
-            // bitmapオブジェクトの画像ピクセル値を配列に挿入
             for (int i = 0; i < bitmap.Height; i++)
             {
                 for (int j = 0; j < bitmap.Width; j++)
                 {
-                    //ci[i * j].AsciiChar = (byte)' ';
                     ci[K].Attributes = (ushort)(color[bitmap.GetPixel(j, i)]);
                     K++;
-                    /*Render.CursorLeft =j;
-                    Render.CursorTop = i;//bitmap.GetPixel(j, i).ToArgb()
-                    RenderColor.BackgroundColor = color[bitmap.GetPixel(j, i).ToArgb()];//RenderColor.SetBackgroundColor(bitmap.GetPixel(j, i));
-                    Render.WritePre(" ");*/
-                    // ここではグレイスケールに変換して格納
-                    /**data[j, i] =
-                        (byte)(
-                        (bitmap.GetPixel(j, i).R +
-                        bitmap.GetPixel(j, i).B +
-                        bitmap.GetPixel(j, i).G) / 3)
-                        ;*/
                 }
             }
             var sm = new ConsoleFunctions.SMALL_RECT

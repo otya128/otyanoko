@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,15 +10,17 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-
+using System.Net.Mime;
 namespace browser
 {
+    //11/26 System.Net.Mimeに変更
     class Connect
     {
         static public string OSVer = Environment.OSVersion.Version.Major.ToString() + "." + Environment.OSVersion.Version.Minor.ToString();
         static public string CLRVer = Environment.Version.Major.ToString() + "." + Environment.Version.Minor.ToString();
         //otyanoko 1.0;
         static public string UserAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT " + OSVer + "; .NET CLR " + CLRVer + "; ) otyanoko/1.0";
+        
         static public string connect_get(string uri, string encode, string relativeUri)
         {
             string dmmy;
@@ -118,12 +121,14 @@ namespace browser
             WebResponse res = req.GetResponse();
             
             url_ = res.ResponseUri.ToString();
-            Core.ContentType = res.ContentType;
-            if (res.ContentType.IndexOf("image") != -1)
+            Core.ContentType = new ContentType(res.ContentType);
+
+            if (Core.ContentType.MediaType.IndexOf("image") != -1)
             {
                 //UIProcess.OpenImage(url_, res.ContentType);
                 //throw new CancelException();
             }
+            //ContentTypeのcharsetを優先させるべき?
 
             //Debug.WriteLine(res.ResponseUri.ToString());
             System.IO.Stream resStream = res.GetResponseStream();
@@ -202,8 +207,8 @@ namespace browser
             //サーバーからの応答を受信するためのWebResponseを取得
             System.Net.WebResponse res = req.GetResponse();
             url_ = res.ResponseUri.ToString();
-            Core.ContentType = res.ContentType;
-            if (res.ContentType.IndexOf("image") != -1)
+            Core.ContentType = new ContentType(res.ContentType);
+            if (Core.ContentType.MediaType.IndexOf("image") != -1)
             {
                 //UIProcess.OpenImage(url_,res.ContentType);
                 //throw new CancelException();
@@ -254,8 +259,8 @@ namespace browser
             {
                 var res = ex.Response;
                 _url = res.ResponseUri.ToString();
-                Core.ContentType=res.ContentType;
-                if (res.ContentType.IndexOf("image") != -1)
+                Core.ContentType=new ContentType(res.ContentType);
+                if (Core.ContentType.MediaType.IndexOf("image") != -1)
                 {
                     //UIProcess.OpenImage(_url, res.ContentType);
                     //throw new CancelException();
@@ -269,8 +274,9 @@ namespace browser
                 ms.Close();
                 return Encoding.GetEncoding(enc).GetString(Program.htmlb);
             }
-            catch//エラーページでもエラー
+            catch(Exception eex)//エラーページでもエラー
             {
+                Debug.WriteLine(eex.Message);
                 throw new CancelException();
             }
         }

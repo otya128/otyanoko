@@ -71,216 +71,222 @@ namespace browser
         Image = 6, ButtonEx = 7, Meta = 8,
         Hidden = 0
     }
-    static class UIRender
+    class UIRender
     {
-        public static void RenderUI(UI ui)
+        Render render = Core.render;
+        public UIRender(Render rend)
+        {
+            this.render = rend;
+        }
+        public void RenderUI(UI ui)
         {
             switch (ui.UIType)
             {
                 case UIType.Button:
-                    UIRender.Button(ui);
+                    this.Button(ui);
                     break;
                 case UIType.Link:
-                    UIRender.Link(ui);
+                    this.Link(ui);
                     break;
                 case UIType.CheckBox:
-                    UIRender.CheckBox(ui);
+                    this.CheckBox(ui);
                     break;
                 case UIType.Select:
-                    UIRender.Select(ui);
+                    this.Select(ui);
                     break;
                 case UIType.LineTextBox:
-                    UIRender.LineTextBox(ui);
+                    this.LineTextBox(ui);
                     break;
                 case UIType.Image:
-                    UIRender.Image(ui);
+                    this.Image(ui);
                     break;
                 case UIType.ButtonEx:
-                    UIRender.ButtonEx(ui);
+                    this.ButtonEx(ui);
                     break;
                 case UIType.Meta:
-                    UIRender.Meta(ui);
+                    this.Meta(ui);
                     break;
             }
         }
-        public static void RenderUISelect(UI ui)
+        public void RenderUISelect(UI ui)
         {
             switch (ui.UIType)
             {
                 case UIType.Button:
-                    UIRender.SelectButton(ui);
+                    this.SelectButton(ui);
                     break;
                 case UIType.Link:
-                    UIRender.SelectLink(ui);
+                    this.SelectLink(ui);
                     break;
                 case UIType.CheckBox:
-                    UIRender.SelectCheckBox(ui);
+                    this.SelectCheckBox(ui);
                     break;
                 case UIType.Select:
-                    UIRender.SelectSelect(ui);
+                    this.SelectSelect(ui);
                     break;
                 case UIType.LineTextBox:
-                    UIRender.SelectLineTextBox(ui);
+                    this.SelectLineTextBox(ui);
                     break;
                 case UIType.Image:
-                    UIRender.SelectImage(ui);
+                    this.SelectImage(ui);
                     break;
                 case UIType.ButtonEx:
-                    UIRender.SelectButtonEx(ui);
+                    this.SelectButtonEx(ui);
                     break;
                 case UIType.Meta:
-                    UIRender.SelectMeta(ui);
+                    this.SelectMeta(ui);
                     break;
             }
         }
-        public static void SelectButton(UI ui)
+        public void SelectButton(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            Render.RenderButtonColor(ui.Text, Color.DarkBlue, Color.White);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.RenderButtonColor(ui.Text, Color.DarkBlue, Color.White);
         }
-        public static void Button(UI ui)
+        public void Button(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            Render.RenderButtonColor(ui.Text, RenderColor.DefaultForeColor, RenderColor.DefaultBackColor);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.RenderButtonColor(ui.Text, RenderColor.DefaultForeColor, RenderColor.DefaultBackColor);
         }
 
-        public static void Link(UI ui)
+        public void Link(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
             //RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.RenderHtmlA(ui.Node.ChildNodes, ui.State);
+            render.RenderHtmlA(ui.Node.ChildNodes, ui.State);
             //RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
         }
-        public static void SelectLink(UI ui)
+        public void SelectLink(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
             //RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.RenderHtmlA(ui.Node.ChildNodes, ui.State);//getHtml(ui.Node.ChildNodes);
+            render.RenderHtmlA(ui.Node.ChildNodes, ui.State);//getHtml(ui.Node.ChildNodes);
             //RenderColor.OldForegroundColor();
-            RenderColor.OldBackgroundColor();
+            render.Color.OldBackgroundColor();
         }
-        public static void CheckBox(UI ui)
+        public void CheckBox(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            Render.RenderCheckBox(true);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.RenderCheckBox(true);
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void SelectCheckBox(UI ui)
+        public void SelectCheckBox(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
-            RenderColor.SetForegroundColor(Color.DarkBlue);
-            Render.RenderCheckBox(true);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
+            render.Color.SetForegroundColor(Color.DarkBlue);
+            render.RenderCheckBox(true);
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void Select(UI ui)
+        public void Select(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            Render.RenderSelect(ui.Select.SelectList[ui.Select.Select], ui.Select.MaxLength, ui.Select.Length[ui.Select.Select]);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.RenderSelect(ui.Select.SelectList[ui.Select.Select], ui.Select.MaxLength, ui.Select.Length[ui.Select.Select]);
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void SelectSelect(UI ui)
+        public void SelectSelect(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
-            RenderColor.SetForegroundColor(Color.DarkBlue);
-            Render.RenderSelect(ui.Select.SelectList[ui.Select.Select], ui.Select.MaxLength, ui.Select.Length[ui.Select.Select]);//Render.RenderSelect(ui.Select.SelectList[ui.Select.Select]);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
+            render.Color.SetForegroundColor(Color.DarkBlue);
+            render.RenderSelect(ui.Select.SelectList[ui.Select.Select], ui.Select.MaxLength, ui.Select.Length[ui.Select.Select]);//Render.RenderSelect(ui.Select.SelectList[ui.Select.Select]);
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void LineTextBox(UI ui)
+        public void LineTextBox(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            Render.RenderTextBox(ui.Value, ui.LineTextBox.Size);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.RenderTextBox(ui.Value, ui.LineTextBox.Size);
             //HtmlNodeCollection hnc = new HtmlNodeCollection(ui.Node);
             //hnc.Add(ui.Node);
             //Render.RenderHtml(hnc, ui.State);
-            RenderColor.OldForegroundColor();
-            RenderColor.OldBackgroundColor();
+            render.Color.OldForegroundColor();
+            render.Color.OldBackgroundColor();
         }
-        public static void SelectLineTextBox(UI ui)
+        public void SelectLineTextBox(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
-            RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.RenderTextBox(ui.Value, ui.LineTextBox.Size);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
+            render.Color.SetForegroundColor(ConsoleColor.DarkBlue);
+            render.RenderTextBox(ui.Value, ui.LineTextBox.Size);
             //HtmlNodeCollection hnc = new HtmlNodeCollection(ui.Node);
             //hnc.Add(ui.Node);
             //Render.RenderHtml(hnc, ui.State);//getHtml(ui.Node.ChildNodes);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void Image(UI ui)
+        public void Image(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            Render.Write(ui.Text);
-            RenderColor.OldForegroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.Write(ui.Text);
+            render.Color.OldForegroundColor();
         }
-        public static void SelectImage(UI ui)
+        public void SelectImage(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            RenderColor.Under(true);
-            Render.Write(ui.Text);
-            RenderColor.OldForegroundColor();
-            RenderColor.OldBackgroundColor();
-            RenderColor.Under(false);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.Color.Under(true);
+            render.Write(ui.Text);
+            render.Color.OldForegroundColor();
+            render.Color.OldBackgroundColor();
+            render.Color.Under(false);
         }
-        public static void ButtonEx(UI ui)
+        public void ButtonEx(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetForegroundColor(RenderColor.DefaultForeColor);
-            RenderColor.SetBackgroundColor(RenderColor.DefaultBackColor);
-            Render.RenderHtml(ui.Node, ui.State);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetForegroundColor(RenderColor.DefaultForeColor);
+            render.Color.SetBackgroundColor(RenderColor.DefaultBackColor);
+            render.RenderHtml(ui.Node, ui.State);
             //RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
         }
-        public static void SelectButtonEx(UI ui)
+        public void SelectButtonEx(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
-            RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.RenderHtml(ui.Node, ui.State);
-            RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
+            render.Color.SetForegroundColor(ConsoleColor.DarkBlue);
+            render.RenderHtml(ui.Node, ui.State);
+            render.Color.OldForegroundColor(); render.Color.OldBackgroundColor();
         }
-        public static void Meta(UI ui)
+        public void Meta(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            //RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.WriteLink(ui.Text);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            //render.Color.SetForegroundColor(ConsoleColor.DarkBlue);
+            render.WriteLink(ui.Text);
             //RenderColor.OldForegroundColor(); RenderColor.OldBackgroundColor();
         }
-        public static void SelectMeta(UI ui)
+        public void SelectMeta(UI ui)
         {
-            Render.CursorTop = ui.CursorTop;
-            Render.CursorLeft = ui.CursorLeft;
-            RenderColor.SetBackgroundColor(Color.White);
+            render.CursorTop = ui.CursorTop;
+            render.CursorLeft = ui.CursorLeft;
+            render.Color.SetBackgroundColor(Color.White);
             //RenderColor.SetForegroundColor(ConsoleColor.DarkBlue);
-            Render.WriteLink(ui.Text);
+            render.WriteLink(ui.Text);
             //RenderColor.OldForegroundColor();
-            RenderColor.OldBackgroundColor();
+            render.Color.OldBackgroundColor();
         }
     }
     static class UIProcess
     {
+        static Render render = Core.render;
         public static ConsoleKeyInfo TextBox(UI ui)
         {
             return new ConsoleKeyInfo();
@@ -289,31 +295,31 @@ namespace browser
         {
             return Console.ReadLine();
             string text = "";
-            var Top = Render.CursorTop;
+            var Top = render.CursorTop;
             while (true)
             {
                 var key = Console.ReadKey();
                 if (key.Key == ConsoleKey.RightArrow)
                 {
-                    if (Render.CursorLeft < text.Length) Render.CursorLeft++;
+                    if (render.CursorLeft < text.Length) render.CursorLeft++;
                 }
                 else
                     if (key.Key == ConsoleKey.LeftArrow)
                     {
-                        if(Render.CursorLeft>0)Render.CursorLeft--;
+                        if(render.CursorLeft>0)render.CursorLeft--;
                     }
                     else
                     {
                         //if(Render.CursorLeft>0)
-                            text=text.Insert(Render.CursorLeft, key.KeyChar.ToString());
+                            text=text.Insert(render.CursorLeft, key.KeyChar.ToString());
                         //if (Render.CursorLeft == 0)
                         //    text = key.KeyChar.ToString()+text;
-                            Render.CursorLeft++;
-                        var b = Render.CursorLeft;
-                        Render.CursorLeft = 0;
-                        Render.CursorTop = Top;
-                        Render.Write(text);
-                        Render.CursorLeft = b;
+                            render.CursorLeft++;
+                        var b = render.CursorLeft;
+                        render.CursorLeft = 0;
+                        render.CursorTop = Top;
+                        render.Write(text);
+                        render.CursorLeft = b;
                         //Render.Write(key.KeyChar.ToString());
                     }
             }

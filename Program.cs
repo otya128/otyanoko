@@ -16,11 +16,17 @@ using System.Collections.Specialized;
 using WIN32;
 using System.Reflection;
 using System.Drawing.Imaging;                    // for Color (add reference to  System.Drawing.assembly)
+using System.Net.Mime;
 namespace browser
 {
-
+    //11/25
+    /// <summary>
+    /// インスタンスメソッド化した理由
+    /// 複数のhScreenを扱う場合は退避しないといけないため
+    /// </summary>
     class Program
     {
+        static Render render = Core.render;
         /*[DllImport("kernel32.dll")]
         public static extern IntPtr CreateConsoleScreenBuffer(
            long dwDesiredAccess,
@@ -56,26 +62,18 @@ namespace browser
         private const Int32 MF_BYPOSITION = 0x400;
         private const Int32 MF_REMOVE = 0x1000;
         public const int WM_MENUSELECT = 0x011F;
+
         unsafe static void Main(string[] args)
         {
+            var a=new ContentType("text/html;charset=hogejhoege;URL=hoge");
+            Debug.WriteLine(a.CharSet);
+            Debug.WriteLine(a.MediaType);
+            Debug.WriteLine(a.Parameters["URL"]);
             //ハンドル取得すると無効と言われる
             Console.ForegroundColor = RenderColor.DefaultForeColor;
             Console.BackgroundColor = RenderColor.DefaultBackColor;
-            //Render.hSrceen = ConsoleFunctions.GetStdHandle(-11);
-            // 画像を格納するためのBitmapオブジェクト作成
-            //var moto = new Bitmap("D:/log/file/4wpbhmdcib0bttove6ry7xfp583nrqqj.png");
-            //var handle = RenderImage.ImageRender(moto);
-            //while(true);
-            /*int i = 0;
-            while (true)
-            {
-                Console.Write("");//(char)i++);
-            }*/
-            //Console.ReadKey()
-                ;
-            //RenderImage.Dispose(handle, Render.hSrceen);
             https://github.com/stealthinu/pukiwiki_spam_filter/blob/master/spam_filter.php
-            http://www.cookcomputing.com/blog/archives/000556.html
+            http://www.cookcomputing.com/blog/archives/000556.html HTTPヘッダがおかしいと例外が出るのを阻止
             //Get the assembly that contains the internal class
             Assembly aNetAssembly = Assembly.GetAssembly(
               typeof(System.Net.Configuration.SettingsSection));
@@ -109,115 +107,12 @@ namespace browser
                     }
                 }
             }
-            /*var hWnd = ConsoleFunctions.GetConsoleWindow();
-            var hMenu = user32.GetSystemMenu(hWnd, false);
-            int n = GetMenuItemCount(hMenu);
-            if (n > 0)
-            {
-                ///RemoveMenu(hMenu, (uint)(n - 1), MF_BYPOSITION | MF_REMOVE);
-                //RemoveMenu(hMenu, (uint)(n - 2), MF_BYPOSITION | MF_REMOVE);
-                //DrawMenuBar(hWnd);
-            }
-            //void*  test=new void*();
-            //fixed(int* test = new Int32(0))
-            //*test = 0;
-            while (true)
-            {
-                IntPtr test = Marshal.AllocHGlobal(4);
-                //6
-                int flags = ((n - 1)/* << 16*/
-            /*) | (0x00002000<<16);
-flags = 0x1;
-Marshal.WriteInt32(test, flags);
-IntPtr test2 = Marshal.AllocHGlobal(4);
-flags = 0x5050;
-Marshal.WriteInt32(test2, flags);
-//user32.SendMessage(hWnd, 0x5, test, test2);
-user32.SendMessage(hWnd, 0x6, test, hWnd);
-//user32.SendMessage(hWnd, WM_MENUSELECT, test, hMenu);
-}
-//connect("http://google.com/search?q=test", "shift_jis", "POST", "A");
-/*Render.hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
-Render.StdHandle = ConsoleFunctions.GetStdHandle(-11);//ConsoleFunctions.GetConsoleSelectionInfo(
-//fixed char name[30];//fixed char FaceName[(int)ConsoleFunctions.CONSOLE_FONT_INFO_EX.LF_FACESIZE];
-ConsoleFunctions.CONSOLE_FONT_INFO_EX cfie=new ConsoleFunctions.CONSOLE_FONT_INFO_EX();
-var b = new byte[(int)ConsoleFunctions.CONSOLE_FONT_INFO_EX.LF_FACESIZE];
-Console.WriteLine("{0}", GetLastError());
-ConsoleFunctions.GetCurrentConsoleFontEx(Render.hSrceen, false, out cfie);
-Console.WriteLine("{0}", GetLastError());
-cfie.cbSize = (uint)Marshal.SizeOf(cfie);
-//b = cfie.FaceName;
-for (int i = 0; i < ConsoleFunctions.CONSOLE_FONT_INFO_EX.LF_FACESIZE; i++)
-{
-//b[i]=cfie.FaceName[i];
-}
-Console.WriteLine(Encoding.GetEncoding("shift_jis").GetString(b));
-for (int i = 0; i < 20; i++)
-{
-cfie = new ConsoleFunctions.CONSOLE_FONT_INFO_EX
-{
-dwFontSize = new ConsoleFunctions.COORD { X = 8, Y = 18 },
-FontFamily = 0,
-FontWeight = 100,
-nFont = Convert.ToUInt32(i),
-
-//FaceName=a
-};
-/*char* a = cfie.FaceName/*"MSゴシック"*/
-            ;
-            /*{
-                a[0] = 't';
-                a[1] = '\0'; 
-            }*/
-            /* cfie.FaceName[0] = (byte)'A';
-             cfie.FaceName[1] = (byte)'r';
-             cfie.FaceName[2] = (byte)'i';
-             cfie.FaceName[3] = (byte)'a';
-             cfie.FaceName[4] = (byte)'l';*/
-            /*
-cfie.FaceName[5] = (byte)'n';
-cfie.FaceName[6] = (byte)'a';
-cfie.FaceName[7] = (byte)'l';*/
-            /*cfie.cbSize = (uint)Marshal.SizeOf(cfie);
-
-            //fixed (ConsoleFunctions.CONSOLE_FONT_INFO_EX* pcfie = cfie) 
-            Console.WriteLine(ConsoleFunctions.SetCurrentConsoleFontEx(Render.hSrceen, true, ref cfie));
-            Console.WriteLine("{0}", GetLastError());
-        }
-        while (true)
-        {
-            Console.Write("a");
-            var csi = new ConsoleFunctions.CONSOLE_SELECTION_INFO();
-            Debug.WriteLine(ConsoleFunctions.GetConsoleSelectionInfo(out csi));
-            Debug.WriteLine(csi.Flags);
-            Debug.WriteLine("{0},{1},{2},{3}", csi.Selection.Bottom, csi.Selection.Left, csi.Selection.Right, csi.Selection.Top);
-        }
-        //System.AppDomain.CurrentDomain.UnhandledException +=
-        //new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
-        //var a = connect_get("http://google.com", "shift_jis", "/search?q=search");
-            
-        Console.ForegroundColor = RenderColor.DefaultBackColor;
-        Console.BackgroundColor = RenderColor.DefaultBackColor;
-        //Console.ReadLine();
-        Render.hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
-        /*CreateConsoleScreenBuffer(
-0x80000000L | 0x40000000L, 0, NULL, 1, NULL
-);*/
-            /*Console.ReadLine();
-            //ConsoleFunctions.CreateConsoleScreenBuffer(
-            
-            uint cell;
-            ConsoleFunctions.WriteConsole(Render.hSrceen, "test", Convert.ToUInt32("test".Length), out cell, NULL);
-            Console.Write("test");
-            Console.ReadLine();
-            Console.Write(ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.hSrceen));
-            Console.ReadLine(); */
             int stackSize = 1024 * 1024 * 64;
             Thread th = new Thread(MainThread,
                 stackSize);
             th.Name = "MainThread";
             th.Start();
-            //th.Join();
+            th.Join();
             //char[] bars = { '/', '-', '|', '|' };
             /*Console.Write("NowLoading..."); 
             while (true)
@@ -235,8 +130,8 @@ cfie.FaceName[7] = (byte)'l';*/
                     i = (i + 1) % 4;
                 }
             }*/
-            CloseHandle(Render.hSrceen);
-            Render.hSrceen = NULL;
+            CloseHandle(render.hSrceen);
+            render.hSrceen = NULL;
 
                 //Console.WriteLine("aaAhfh\r\nahg");
                 /*Render.ConsoleBackColorRGB(255, 255, 255);//SetConsoleColorRGB
@@ -252,48 +147,14 @@ cfie.FaceName[7] = (byte)'l';*/
 
         static void MainThread()
         {
+            render = Core.render;//Coreのrenderが先に代入されるとは限らない
             Debug.WriteLine(Environment.OSVersion.Version.Revision);
             Debug.WriteLine(Environment.Version.Major);
             Debug.WriteLine(Connect.UserAgent);
             //Console.S = null;
             var wc = new WebClient();
             Core.url = "http://chat.kanichat.com/mobile.jsp?roomid=petcwiki";//http://uni.2ch.net/test/read.cgi/kinoko/1373445002/";
-            string html = "<h1>Test</h1><h2>Test</h2><h3>Test</h3>";
-            html += @"<A>testLink<br>testa</A><font color=""#60aaff"">みんたん</font><div id=""siyorei_browse"">
-	<h4 class=""header4"">テスト</h4>
-<form action=""kensaku.cgi""><hr><label>inputinput<input type=""submit"" value=""hoge"" name=""isindex""></label><hr></form>
-	</div>
-<dl>
- <dt>りんご</dt>
- <dt>apple</dt>
-  <dd>赤い色をした丸い果物。</dd>
- <dt>バナナ</dt>
-  <dd>黄色い色をした細長い果物。</dd>
-  <dd>あなたが好きだといった食べもの。</dd>
-</dl>
-<ul>
-  <li>私が好きな真っ赤なりんご
-    <ul>
-      <li>りんごといえばやはり陸奥</li>
-      <li>いいえ、なんといってもマッキントッシュ</li>
-    </ul>
-  </li>
-  <li>あなたが好きなのはバナナ</li>
-<a href=""http://jbbs.livedoor.jp/computer/40554/"" target=""_blank""><img src=""http://screenshot.livedoor.com/small/http://jbbs.livedoor.jp/computer/40554/"" alt=""alt""></a>
-</ul><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-<select name=""color"">
-<option value=""black"">黒</option>
-<option value=""gray"">灰
-</option>
-<option value=""blown"">茶
-</option>
-<option value=""blue"">青
-</option>
-<option value=""green"">緑
-</option>
-<option value=""purple"">紫
-</option><option value=""orange"">橙
-</option><option value=""red"">赤</option></select>";
+            string html = "";
 
             html = Connect.connect_get(Core.url, "shift_jis");//wc.DownloadString(url);
             //Console.BufferHeight = Core.ScreenBuffSizeY;
@@ -304,21 +165,21 @@ cfie.FaceName[7] = (byte)'l';*/
             ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.StdHandle);
             //Console.ForegroundColor = RenderColor.DefaultForeColor;
             //Console.BackgroundColor = RenderColor.DefaultBackColor;
-            RenderColor.ForegroundColor = RenderColor.DefaultForeColor;
-            RenderColor.BackgroundColor = RenderColor.DefaultBackColor;
+            render.Color.ForegroundColor = RenderColor.DefaultForeColor;
+            render.Color.BackgroundColor = RenderColor.DefaultBackColor;
             //Console.Clear();
             //ConsoleFunctions.SetConsoleScreenBufferSize(Render.hSrceen, new ConsoleFunctions.COORD { X=80,Y=25});
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(Render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
             IntPtr tmphScreen;
             //if (csbi.dwSize.Y != 25)
             {
-                tmphScreen = Render.hSrceen;
+                tmphScreen = render.hSrceen;
 
-                Render.hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
-                RenderColor.ForegroundColor = RenderColor.DefaultForeColor;
-                RenderColor.BackgroundColor = RenderColor.DefaultBackColor;
-                ConsoleFunctions.SetConsoleScreenBufferSize(Render.hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+                render.hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+                render.Color.ForegroundColor = RenderColor.DefaultForeColor;
+                render.Color.BackgroundColor = RenderColor.DefaultBackColor;
+                ConsoleFunctions.SetConsoleScreenBufferSize(render.hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                 
             
             } 
@@ -352,12 +213,12 @@ cfie.FaceName[7] = (byte)'l';*/
             //var tw = new StreamWriter(new MemoryStream(new byte[1024]),Console.OutputEncoding);
             //Console.SetOut(new StreamWriter("hige"));
             //Console.Out.Dispose();
-            if (Core.ContentType.IndexOf("image") != -1)
+            if (Core.ContentType.MediaType.IndexOf("image") != -1)
             {
                 string temp = System.IO.Path.GetTempPath() + Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + Path.GetExtension(Core.url);
                 //var wc = new WebClient();
                 Connect.connect_file(Core.url, temp.ToUpper());
-                var r = new RenderImage(new Bitmap(temp.ToUpper()), Render.hSrceen);
+                var r = new RenderImage(new Bitmap(temp.ToUpper()), render.hSrceen);
                 r.Render();
                 Console.ReadKey(true);
                 r.Dispose();
@@ -395,9 +256,9 @@ cfie.FaceName[7] = (byte)'l';*/
             ConsoleKeyInfo key=new ConsoleKeyInfo();
             //Console.BufferHeight= Render.CursorTop;
             //Console.Write(Render.console);
-            ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.hSrceen);
+            ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
 
-            Render.CursorVisible = false;
+            render.CursorVisible = false;
             Proccessing = false;
 
             CloseHandle(tmphScreen);
@@ -406,14 +267,16 @@ cfie.FaceName[7] = (byte)'l';*/
             {
                 
                 //continue;
-                if (Core.UIList.Count > index)
+                if (Core.UIList.Count > index||index<0)
                 {
-
+                    //indexがおかしい状態でenter押すと例外が出る!!!
                 }
+                //選択状態なのを戻すために再描画するフラグ
                 if (key.Key == ConsoleKey.UpArrow || key.Key == ConsoleKey.DownArrow) renderFlag = true; else renderFlag = false;
                 if (renderFlag && index >= 0 && index < Core.UIList.Count)
                 {
-                    UIRender.RenderUI(Core.UIList[index]);
+                    //非選択UIを描画
+                    render.UI.RenderUI(Core.UIList[index]);
                 }
                 #region(key)
                 if (key.Key == ConsoleKey.UpArrow && index > 0)
@@ -427,28 +290,8 @@ cfie.FaceName[7] = (byte)'l';*/
                 if (key.Key == ConsoleKey.Escape) break;
                 if (key.Key == ConsoleKey.Enter)
                 {
-                    if (Core.UIList[index].UIType == UIType.Link)
-                    {
-
-                        string u0 = System.Web.HttpUtility.HtmlDecode(Core.UIList[index].Node.GetAttributeValue("href", ""));
-                        /*var u1 = new Uri(url);
-                        var u2 = new Uri(u1, u0);
-                        url = u2.ToString();*/
-                        try
-                        {
-                            html = Connect.connect_get(Core.url, Core.encode, u0, out Core.url);//wc.DownloadString(url);
-                            goto start;
-                        }
-                        catch (CancelException)
-                        { }
-                        catch (WebException ex)
-                        {
-                            html = Connect.connect_error(ex, Core.encode, out Core.url);//wc.DownloadString(url);
-                            goto start;
-                        }
-                        
-                    }
-                    if (Core.UIList[index].UIType == UIType.Meta)
+                    //これをswitchにしたい
+                    if (Core.UIList[index].UIType == UIType.Link || Core.UIList[index].UIType == UIType.Meta)
                     {
 
                         string u0 = System.Web.HttpUtility.HtmlDecode(Core.UIList[index].Value);
@@ -467,8 +310,27 @@ cfie.FaceName[7] = (byte)'l';*/
                             html = Connect.connect_error(ex, Core.encode, out Core.url);//wc.DownloadString(url);
                             goto start;
                         }
-
+                        
                     }
+                    //Meta TODO:Linkと同じコードにしたい->した
+                    /*if (Core.UIList[index].UIType == UIType.Meta)
+                    {
+
+                        string u0 = System.Web.HttpUtility.HtmlDecode(Core.UIList[index].Value);
+                        try
+                        {
+                            html = Connect.connect_get(Core.url, Core.encode, u0, out Core.url);//wc.DownloadString(url);
+                            goto start;
+                        }
+                        catch (CancelException)
+                        { }
+                        catch (WebException ex)
+                        {
+                            html = Connect.connect_error(ex, Core.encode, out Core.url);//wc.DownloadString(url);
+                            goto start;
+                        }
+
+                    }*/
                     if (Core.UIList[index].UIType == UIType.Button || Core.UIList[index].UIType == UIType.ButtonEx)
                     {
                         var f = Core.UIList[index].Form;
@@ -556,19 +418,21 @@ cfie.FaceName[7] = (byte)'l';*/
                     }
                     if (Core.UIList[index].UIType == UIType.Select)
                     {
-                        var oldFore = RenderColor.ForegroundColorOld;
-                        var oldBack = RenderColor.BackgroundColorOld;
+                        var oldFore = render.Color.ForegroundColorOld;
+                        var oldBack = render.Color.BackgroundColorOld;
                         //var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                         //ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                         //Render.Copy(Render.hSrceen, hSrceen, (short)Render.ScrollY);//Render.Copy(Render.hSrceen, hSrceen, (short)Core.UIList[index].CursorTop);
-                        Render.CursorTop = Core.UIList[index].CursorTop;
-                        var hSrceen = Render.CopyToNewBuff();
-                        var OldhSrceen = Render.hSrceen;
-                        Render.hSrceen = hSrceen;
+                        var selectRender = new Render();
 
-                        Render.CursorVisible = false;
-                        RenderColor.BackgroundColor_ = (ConsoleColor.Black);
-                        RenderColor.ForegroundColor_ = (ConsoleColor.White);
+                        render.CursorTop = Core.UIList[index].CursorTop;
+                        var hSrceen = render.CopyToNewBuff();
+                        //var OldhSrceen = render.hSrceen;
+                        selectRender.hSrceen = hSrceen;
+
+                        selectRender.CursorVisible = false;
+                        selectRender.Color.BackgroundColor_ = (ConsoleColor.Black);
+                        selectRender.Color.ForegroundColor_ = (ConsoleColor.White);
                         int length = 0;
                         foreach (var i in Core.UIList[index].Select.SelectList)
                         {
@@ -576,35 +440,35 @@ cfie.FaceName[7] = (byte)'l';*/
                         }
 
                         int select = Core.UIList[index].Select.Select;
-                        Render.CursorLeft = Core.UIList[index].CursorLeft;
-                        Render.CursorTop = 1;//Core.UIList[index].CursorTop;
-                        Render.WritePre("+" + new string('-', length) + "+");
+                        selectRender.CursorLeft = Core.UIList[index].CursorLeft;
+                        selectRender.CursorTop = 1;//Core.UIList[index].CursorTop;
+                        selectRender.WritePre("+" + new string('-', length) + "+");
 
                         int count = 0;
                         foreach (var i in Core.UIList[index].Select.SelectList)
                         {
-                            Render.CursorLeft = Core.UIList[index].CursorLeft;
-                            Render.CursorTop++;
-                            Render.WritePre("|");
+                            selectRender.CursorLeft = Core.UIList[index].CursorLeft;
+                            selectRender.CursorTop++;
+                            selectRender.WritePre("|");
                             if (count == select)
                             {
-                                RenderColor.BackgroundColor_ = (ConsoleColor.White);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.Black);
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.White);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.Black);
                             }
-                            Render.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
+                            selectRender.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
                             if (count == select)
                             {
-                                RenderColor.BackgroundColor_ = (ConsoleColor.Black);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.White);
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.Black);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.White);
                             }
-                            Render.WritePre("|");
+                            selectRender.WritePre("|");
                             count++;
                         }
 
-                        Render.CursorLeft = Core.UIList[index].CursorLeft;
-                        Render.CursorTop++;
-                        Render.WritePre("+" + new string('-', length) + "+");
-                        Render.CursorTop = 2 + select;
+                        selectRender.CursorLeft = Core.UIList[index].CursorLeft;
+                        selectRender.CursorTop++;
+                        selectRender.WritePre("+" + new string('-', length) + "+");
+                        selectRender.CursorTop = 2 + select;
                         ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
                         while (true)
                         {
@@ -615,44 +479,44 @@ cfie.FaceName[7] = (byte)'l';*/
                             if (key_.Key == ConsoleKey.UpArrow && select > 0)
                             {
                                 select--;
-                                Render.CursorLeft = Core.UIList[index].CursorLeft + 1;
-                                Render.CursorTop = 2 + select;
+                                selectRender.CursorLeft = Core.UIList[index].CursorLeft + 1;
+                                selectRender.CursorTop = 2 + select;
                                 var i = Core.UIList[index].Select.SelectList[select];
-                                RenderColor.BackgroundColor_ = (ConsoleColor.White);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.Black);
-                                Render.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
-                                RenderColor.BackgroundColor_ = (ConsoleColor.Black);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.White);
-                                Render.CursorLeft = Core.UIList[index].CursorLeft + 1;
-                                Render.CursorTop++;
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.White);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.Black);
+                                selectRender.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.Black);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.White);
+                                selectRender.CursorLeft = Core.UIList[index].CursorLeft + 1;
+                                selectRender.CursorTop++;
                                 i = Core.UIList[index].Select.SelectList[select + 1];
-                                Render.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
+                                selectRender.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
 
                             } if (key_.Key == ConsoleKey.DownArrow && select + 1 < Core.UIList[index].Select.SelectList.Count)
                             {
                                 select++;
-                                Render.CursorLeft = Core.UIList[index].CursorLeft + 1;
-                                Render.CursorTop = 2 + select;
+                                selectRender.CursorLeft = Core.UIList[index].CursorLeft + 1;
+                                selectRender.CursorTop = 2 + select;
                                 var i = Core.UIList[index].Select.SelectList[select];
-                                RenderColor.BackgroundColor_ = (ConsoleColor.White);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.Black);
-                                Render.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
-                                RenderColor.BackgroundColor_ = (ConsoleColor.Black);
-                                RenderColor.ForegroundColor_ = (ConsoleColor.White);
-                                Render.CursorLeft = Core.UIList[index].CursorLeft + 1;
-                                Render.CursorTop--;
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.White);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.Black);
+                                selectRender.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
+                                selectRender.Color.BackgroundColor_ = (ConsoleColor.Black);
+                                selectRender.Color.ForegroundColor_ = (ConsoleColor.White);
+                                selectRender.CursorLeft = Core.UIList[index].CursorLeft + 1;
+                                selectRender.CursorTop--;
                                 i = Core.UIList[index].Select.SelectList[select - 1];
-                                Render.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
+                                selectRender.WritePre(i + new string(' ', length - Encoding.GetEncoding(932).GetBytes(i).Length));
                             }
                         }
 
                         Core.UIList[index].Select.Select = select;
 
-                        RenderColor.BackgroundColor = (RenderColor.DefaultBackColor);
-                        RenderColor.ForegroundColor = (RenderColor.DefaultForeColor);
-                        Render.hSrceen = OldhSrceen;
+                        render.Color.BackgroundColor = (RenderColor.DefaultBackColor);
+                        render.Color.ForegroundColor = (RenderColor.DefaultForeColor);
+                        //render.hSrceen = OldhSrceen;
 
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.hSrceen);
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
                         Core.UIList[index].Value = Core.UIList[index].Select.ValueList[Core.UIList[index].Select.Select];
                         //RenderColor.OldForegroundColor();
                         //RenderColor.OldBackgroundColor();
@@ -660,36 +524,36 @@ cfie.FaceName[7] = (byte)'l';*/
                         //RenderColor.BackgroundColor = (ConsoleColor)oldBack;
                         //RenderColor.SetBackgroundColor();
                         //RenderColor.SetForegroundColor();
-                        Render.AutoScreenBuff = true;
+                        render.AutoScreenBuff = true;
                     }
                     if (Core.UIList[index].UIType == UIType.LineTextBox)
                     {
 
-                        Render.CursorTop = Core.UIList[index].CursorTop;
-                        Render.AutoScreenBuff = false;
+                        render.CursorTop = Core.UIList[index].CursorTop;
+                        render.AutoScreenBuff = false;
                         /*var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                         ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                         Render.Copy(Render.hSrceen, hSrceen, (short)Render.ScrollY, 23, 1);*/
-                        var hSrceen = Render.CopyToNewBuff();
-                        var OldhSrceen = Render.hSrceen;
-                        Render.hSrceen = hSrceen;
-                        RenderColor.SetBackgroundColor(Color.Black);
-                        RenderColor.SetForegroundColor(Color.White);
-                        Render.CursorTop = Core.ScreenBuffSizeY-1;
-                        Render.WriteLine("Text:");
+                        var hSrceen = render.CopyToNewBuff();
+                        var OldhSrceen = render.hSrceen;
+                        render.hSrceen = hSrceen;
+                        render.Color.SetBackgroundColor(Color.Black);
+                        render.Color.SetForegroundColor(Color.White);
+                        render.CursorTop = Core.ScreenBuffSizeY-1;
+                        render.WriteLine("Text:");
                         //Render.WriteLine(Core.UIList[index].Value);
-                        Render.CursorTop = Core.ScreenBuffSizeY;
-                        Render.CursorLeft = 0;
+                        render.CursorTop = Core.ScreenBuffSizeY;
+                        render.CursorLeft = 0;
                         ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
-                        Render.CursorVisible = true;
+                        render.CursorVisible = true;
                         //UIProcess.ReadLine();
                         Core.UIList[index].Value = Console.ReadLine();
-                        Render.CursorVisible = false;
-                        RenderColor.BackgroundColor = (RenderColor.DefaultBackColor);
-                        RenderColor.ForegroundColor = (RenderColor.DefaultForeColor);
-                        Render.hSrceen = OldhSrceen;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.hSrceen);
-                        Render.AutoScreenBuff = true;
+                        render.CursorVisible = false;
+                        render.Color.BackgroundColor = (RenderColor.DefaultBackColor);
+                        render.Color.ForegroundColor = (RenderColor.DefaultForeColor);
+                        render.hSrceen = OldhSrceen;
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
+                        render.AutoScreenBuff = true;
                     }
                     if (Core.UIList[index].UIType == UIType.Image)
                     {
@@ -700,27 +564,27 @@ cfie.FaceName[7] = (byte)'l';*/
                 {
                     var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                     ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
-                    Render.Copy(Render.hSrceen, hSrceen);
-                    var OldhSrceen = Render.hSrceen;
-                    Render.hSrceen = hSrceen;
+                    render.Copy(render.hSrceen, hSrceen);
+                    var OldhSrceen = render.hSrceen;
+                    render.hSrceen = hSrceen;
                     ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
-                    RenderColor.SetBackgroundColor(Color.Black);
-                    RenderColor.SetForegroundColor(Color.White);
-                    Render.Write("URL:");
-                    Render.CursorVisible = true;
+                    render.Color.SetBackgroundColor(Color.Black);
+                    render.Color.SetForegroundColor(Color.White);
+                    render.Write("URL:");
+                    render.CursorVisible = true;
                     Console.ReadLine();
-                    Render.CursorVisible = false;
-                    RenderColor.OldForegroundColor();
-                    RenderColor.OldBackgroundColor();
-                    Render.hSrceen = OldhSrceen;
-                    ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.hSrceen);
+                    render.CursorVisible = false;
+                    render.Color.OldForegroundColor();
+                    render.Color.OldBackgroundColor();
+                    render.hSrceen = OldhSrceen;
+                    ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
                     /* CloseHandle(Render.hSrceen);
                      Render.hSrceen = NULL;*/
                 }
                 #endregion
                 if (index >= 0 && index < Core.UIList.Count)
                 {
-                    UIRender.RenderUISelect(Core.UIList[index]);
+                    render.UI.RenderUISelect(Core.UIList[index]);
                 }
 #region
                 /*if (key.Key!=0&&!(key.Key >= ConsoleKey.LeftArrow && key.Key <= ConsoleKey.DownArrow))
@@ -749,7 +613,7 @@ cfie.FaceName[7] = (byte)'l';*/
                     continue;
                 }*/
 #endregion
-                int oldSY = Render.ScrollY;
+                int oldSY = render.ScrollY;
                 try
                 {
                     key = Console.ReadKey(true);
@@ -760,37 +624,37 @@ cfie.FaceName[7] = (byte)'l';*/
                 }
                 //Debug.WriteLine(oldSY - Render.ScrollY);
                 //Debug.WriteLine( Render.ScrollY-oldSY);
-                if (Math.Abs(oldSY - Render.ScrollY) < 10) continue;
-                if (oldSY != Render.ScrollY&&key.Key==ConsoleKey.DownArrow)
+                if (Math.Abs(oldSY - render.ScrollY) < 10) continue;
+                if (oldSY != render.ScrollY&&key.Key==ConsoleKey.DownArrow)
                 {
                     int jindex = 0;
                     foreach (var i in Core.UIList)
                     {
-                        if (i.CursorTop >= Render.ScrollY)
+                        if (i.CursorTop >= render.ScrollY)
                         {
-                            UIRender.RenderUI(Core.UIList[index]);
+                            render.UI.RenderUI(Core.UIList[index]);
                             index = jindex;
-                            UIRender.RenderUISelect(Core.UIList[index]);
+                            render.UI.RenderUISelect(Core.UIList[index]);
                             key = new ConsoleKeyInfo();
                             break;
                         }
                         jindex++;
                     }
                 }
-                if (oldSY != Render.ScrollY && key.Key == ConsoleKey.UpArrow)
+                if (oldSY != render.ScrollY && key.Key == ConsoleKey.UpArrow)
                 {
                     int jndex = Core.UIList.Count;
                     Core.UIList.Reverse();
                     foreach (var i in Core.UIList)
                     {
                         jndex--;
-                        if (i.CursorTop <= Render.ScrollY)
+                        if (i.CursorTop <= render.ScrollY)
                         {
                             Debug.WriteLine(Core.UIList[Core.UIList.Count - 1 - index].UIType);
                             int kndex = index;
                             index = jndex;
                             //UIRender.RenderUISelect(Core.UIList[index]);
-                            UIRender.RenderUI(Core.UIList[Core.UIList.Count - 1 - kndex]);
+                            render.UI.RenderUI(Core.UIList[Core.UIList.Count - 1 - kndex]);
                             Debug.WriteLine(Core.UIList[Core.UIList.Count - 1 - kndex].UIType);
                             key = new ConsoleKeyInfo();
                             break;
@@ -799,12 +663,12 @@ cfie.FaceName[7] = (byte)'l';*/
                     Core.UIList.Reverse();
                 }
             }
-            Render.WriteLine();
-            Render.Write("URL:");
-            Render.CursorVisible = true;
+            render.WriteLine();
+            render.Write("URL:");
+            render.CursorVisible = true;
             Core.url = Console.ReadLine();
             if (Core.url == "") return;
-            Render.Write("ENCODING:");
+            render.Write("ENCODING:");
             string encode = Console.ReadLine();
             try
             {
