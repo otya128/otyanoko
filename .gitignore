@@ -1,0 +1,6 @@
+obj/
+bin/
+Net45/
+*.config
+*.csproj
+*.user
