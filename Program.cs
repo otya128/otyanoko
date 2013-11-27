@@ -65,6 +65,11 @@ namespace otyanoko
 
         unsafe static void Main(string[] args)
         {
+            //Console.WindowWidth = 90;
+            //Console.ReadLine();
+            //render.WindowLeft=80;
+            //Console.ReadLine();
+            //while (true) ;
             var a=new ContentType("text/html;charset=hogejhoege;URL=hoge");
             Debug.WriteLine(a.CharSet);
             Debug.WriteLine(a.MediaType);
@@ -258,7 +263,8 @@ namespace otyanoko
             //Console.BufferHeight= Render.CursorTop;
             //Console.Write(Render.console);
             ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
-
+            //render.BufferHeight = 10;
+           
             render.CursorVisible = false;
             Proccessing = false;
 
@@ -266,7 +272,7 @@ namespace otyanoko
             tmphScreen = NULL;
             while (true)
             {
-                
+                render.BufferHeight=20;
                 //continue;
                 if (Core.UIList.Count > index||index<0)
                 {
@@ -424,12 +430,12 @@ namespace otyanoko
                         //var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                         //ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                         //Render.Copy(Render.hSrceen, hSrceen, (short)Render.ScrollY);//Render.Copy(Render.hSrceen, hSrceen, (short)Core.UIList[index].CursorTop);
-                        var selectRender = new Render();
+                        var selectRender = render.CopyToNewRender();//new Render();
 
                         render.CursorTop = Core.UIList[index].CursorTop;
-                        var hSrceen = render.CopyToNewBuff();
+                        //var hSrceen = render.CopyToNewBuff();
                         //var OldhSrceen = render.hSrceen;
-                        selectRender.hSrceen = hSrceen;
+                        //selectRender.hSrceen = hSrceen;
 
                         selectRender.CursorVisible = false;
                         selectRender.Color.BackgroundColor_ = (ConsoleColor.Black);
@@ -470,7 +476,7 @@ namespace otyanoko
                         selectRender.CursorTop++;
                         selectRender.WritePre("+" + new string('-', length) + "+");
                         selectRender.CursorTop = 2 + select;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(selectRender.hSrceen);
                         while (true)
                         {
 

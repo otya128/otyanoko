@@ -21,6 +21,114 @@ namespace otyanoko
             this.Color = new RenderColor(this);
             this.UI = new UIRender(this);
         }
+        /// <summary>
+        /// 指定したコンソールハンドルを使用して、Render クラスの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="hSrceen1">コンソールハンドル</param>
+        public Render(IntPtr hSrceen1)
+        {
+            // TODO: Complete member initialization
+            this.hSrceen = hSrceen1;
+            this.Color = new RenderColor(this);
+            this.UI    = new UIRender(this);
+        }
+        /// <summary>
+        /// バッファー領域の高さを取得または設定します。
+        /// </summary>
+        public int BufferHeight
+        {
+            get
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                return csbi.dwSize.Y;
+            }
+            set
+            {
+                ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)BufferWidth, Y = (short)value });
+            }
+        }
+        /// <summary>
+        /// バッファー領域の幅を取得または設定します。
+        /// </summary>
+        public int BufferWidth
+        {
+            get
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                return csbi.dwSize.X;
+            }
+            set
+            {
+                ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)value, Y = (short)BufferHeight });
+            }
+        }
+        /// TODO:SetConsoleWindowInfo使ってスクロールできるらしい
+        /// http://msdn.microsoft.com/en-us/library/windows/desktop/ms685118(v=vs.85).aspx
+        /// <summary>
+        /// コンソール ウィンドウ領域の高さを取得または設定します。
+        /// </summary>
+        public int WindowHeight
+        {
+            get
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                return csbi.srWindow.Bottom;
+            }
+            set
+            {
+                //Console.WindowHeight = value;
+                //return;
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                /*csbi.srWindow.Bottom=-40;
+    csbi.srWindow.Left = -40;
+    csbi.srWindow.Right = 00;*/
+                csbi.srWindow.Top = 0;// (short)value;
+                csbi.srWindow.Bottom = (short)value;
+                //csbi.srWindow.Top = (short)value;//X2
+                //csbi.srWindow.Right += 20;//Y2
+                //csbi.srWindow.Top -= 5;//X1
+                //csbi.srWindow.Left += 20;//Y1
+                // = new ConsoleFunctions.SMALL_RECT { Bottom = 0, Left = 0, Right = 30, Top = 30 };//(short)value;
+                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(hSrceen, true, ref csbi.srWindow));
+            }
+        }
+        /// <summary>
+        /// コンソール ウィンドウ領域の左端の位置を、画面バッファーに対する相対位置として取得または設定します。
+        /// </summary>
+        [Obsolete("未実装")]
+        public int WindowLeft { get; set; }
+        /// <summary>
+        /// コンソール ウィンドウ領域の上端の位置を、画面バッファーに対する相対位置として取得または設定します。
+        /// </summary>
+        [Obsolete("未実装")]
+        public int WindowTop { get; set; }
+        /// <summary>
+        /// コンソール ウィンドウの幅を取得または設定します。
+        /// </summary>
+        public int WindowWidth
+        {
+            get
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                return csbi.srWindow.Right;
+            }
+            set
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                csbi.srWindow.Left = 0;
+                csbi.srWindow.Right = (short)value;
+                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(hSrceen, true, ref csbi.srWindow));
+            }
+        }
+        /// <summary>
+        /// バッファー領域におけるカーソルの列位置を取得または設定します。
+        /// </summary>
         public int CursorLeft
         {
             get
@@ -34,6 +142,9 @@ namespace otyanoko
                 ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)value, Y = (short)CursorTop });
             }
         }
+        /// <summary>
+        /// バッファー領域におけるカーソルの行位置を取得または設定します。
+        /// </summary>
         public int CursorTop
         {
             get
@@ -47,6 +158,9 @@ namespace otyanoko
                 ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)CursorLeft, Y = (short)value });
             }
         }
+        /// <summary>
+        /// カーソルを表示するかどうかを示す値を取得または設定します。
+        /// </summary>
         public bool CursorVisible
         {
             get
@@ -61,6 +175,9 @@ namespace otyanoko
                 ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
             }
         }
+        /// <summary>
+        /// 文字セル内のカーソルの高さを取得または設定します。
+        /// </summary>
         public uint CursorSize
         {
             get
@@ -75,6 +192,9 @@ namespace otyanoko
                 ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
             }
         }
+        /// <summary>
+        /// コンソール ウィンドウの縦スクロールバーの位置を取得または設定します。
+        /// </summary>
         public int ScrollY
         {
             get
@@ -88,20 +208,57 @@ namespace otyanoko
                 user32.SetScrollPos(hWnd, System.Windows.Forms.Orientation.Vertical, value, true);
             }
         }
+        /// <summary>
+        /// コンソール ウィンドウの横スクロールバーの位置を取得または設定します。
+        /// </summary>
+        public int ScrollX
+        {
+            get
+            {
+                var hWnd = ConsoleFunctions.GetConsoleWindow();
+                return user32.GetScrollPos(hWnd, System.Windows.Forms.Orientation.Horizontal);
+            }
+            set
+            {
+                var hWnd = ConsoleFunctions.GetConsoleWindow();
+                user32.SetScrollPos(hWnd, System.Windows.Forms.Orientation.Horizontal, value, true);
+            }
+        }
+        /// <summary>
+        /// 自動的にコンソールバッファを拡張するかどうかを示す値を設定します。
+        /// </summary>
         public bool AutoScreenBuff = true;
+        /// <summary>
+        /// 描画対象のコンソールハンドル
+        /// </summary>
         public IntPtr hSrceen;
         public static IntPtr StdHandle;
         public static IntPtr NULL = IntPtr.Zero;
+        /// <summary>
+        /// 指定したHtmlNodeCollectionとStateClassを利用してHtmlを描画します。
+        /// </summary>
+        /// <param name="htmlNodeCollection"></param>
+        /// <param name="state"></param>
         internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,StateClass state)
         {
             Core.getHtml(htmlNodeCollection, state,true);
         }
+        /// <summary>
+        /// 指定したHtmlNodeとStateClassを利用してHtmlを描画します。
+        /// </summary>
+        /// <param name="htmlNode"></param>
+        /// <param name="state"></param>
         internal void RenderHtml(HtmlAgilityPack.HtmlNode htmlNode, StateClass state)
         {
             var hc = new HtmlAgilityPack.HtmlNodeCollection(htmlNode);
             hc.Add(htmlNode);
             Core.getHtml(hc, state, true);
         }
+        /// <summary>
+        /// 適切にAタグを描画できるように設定し、指定したHtmlNodeとStateClassを利用してHtmlを描画します。
+        /// </summary>
+        /// <param name="htmlNodeCollection"></param>
+        /// <param name="state"></param>
         internal void RenderHtmlA(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection, StateClass state)
         {
             var ss = state.Clone();
@@ -335,6 +492,7 @@ namespace otyanoko
             
             return true;
         }
+        [Obsolete("use method CopyToNewRender")]
         public IntPtr CopyToNewBuff()
         {
             var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
@@ -342,7 +500,17 @@ namespace otyanoko
             this.Copy(this.hSrceen, hSrceen, (short)this.ScrollY, 25, 0);
             return hSrceen;
         }
-
+        /// <summary>
+        /// このRenderの現在表示されている部分をコピーして、新しいRenderインスタンスを生成します。
+        /// </summary>
+        /// <returns>このメソッドが作成する新しい Render</returns>
+        public Render CopyToNewRender()
+        {
+            var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+            this.Copy(this.hSrceen, hSrceen, (short)this.ScrollY, 25, 0);
+            return new Render(hSrceen);
+        }
 
 
 

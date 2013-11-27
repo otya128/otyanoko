@@ -138,7 +138,7 @@ namespace otyanoko
             Program.htmlb = ms.ToArray();
             ms.Close();
             return enc.GetString(Program.htmlb);
-#if FALSE
+#if false
             var wc = new WebClient();
             wc.QueryString = query;
             wc.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36");

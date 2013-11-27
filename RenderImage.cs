@@ -85,6 +85,17 @@ namespace otyanoko
             }
             ConsoleFunctions.SetConsoleActiveScreenBuffer(c);
             handle = c;
+            /*int y = 0;
+            while (true)
+            {
+                int y2 = render.ScrollY;
+                if (y != y2)
+                {
+
+                }
+                y = y2;
+                System.Diagnostics.Debug.WriteLine(y);
+            }*/
             return c;
         }
 
