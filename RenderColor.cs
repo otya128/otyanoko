@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace browser
+namespace otyanoko
 {
     class RenderColor
     {
@@ -18,10 +18,17 @@ namespace browser
         public ConsoleColor DefaultSelectLinkBackColor = ConsoleColor.White;
         public ConsoleColor DefaultSelectLinkForeColor = ConsoleColor.DarkBlue;
         Render render;
+        /// <summary>
+        /// 指定した既存のRenderを使用して、RenderColor クラスの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="rend">Render</param>
         public RenderColor(Render rend)
         {
             this.render = rend;
         }
+        /// <summary>
+        /// Renderの前景色を取得または設定します。
+        /// </summary>
         public ConsoleColor ForegroundColor
         {
             get
@@ -41,6 +48,9 @@ namespace browser
                 //ForegroundColorOld = Console.ForegroundColor;
             }
         }
+        /// <summary>
+        /// Renderの背景色を取得または設定します。
+        /// </summary>
         public ConsoleColor BackgroundColor
         {
             get
@@ -60,7 +70,7 @@ namespace browser
 
         }
         /// <summary>
-        /// Oldは変更しない
+        /// Renderの前景色を取得または設定します。Oldは変更しない
         /// </summary>
         public ConsoleColor ForegroundColor_
         {
@@ -98,6 +108,10 @@ namespace browser
             }
         }
         public ConsoleColor ForegroundColorOld = Console.ForegroundColor;
+        /// <summary>
+        /// Renderの前景色を設定します。
+        /// </summary>
+        /// <param name="cc">設定するConsoleColor</param>
         public void SetForegroundColor(ConsoleColor cc)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
@@ -108,6 +122,10 @@ namespace browser
             //ForegroundColorOld = Console.ForegroundColor;
             Console.ForegroundColor = cc;
         }
+        /// <summary>
+        /// Renderの前景色を設定します。
+        /// </summary>
+        /// <param name="cc">設定するColor</param>
         public void SetForegroundColor(Color cc)
         {
 
@@ -186,6 +204,13 @@ namespace browser
             int mindex = SearchColor(r, g, b);
             SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes/* & 0x1110*/) | mindex));
         }
+        /// <summary>
+        /// RGBからコンソールの16色に変換します。
+        /// </summary>
+        /// <param name="r">R</param>
+        /// <param name="g">G</param>
+        /// <param name="b">B</param>
+        /// <returns>ConsoleColor</returns>
         public int SearchColor(int r, int g, int b)
         {
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
@@ -216,6 +241,10 @@ namespace browser
             }
             return mindex;
         }
+        /// <summary>
+        /// 下線を引きます。
+        /// </summary>
+        /// <param name="flg"></param>
         public void Under(bool flg)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();

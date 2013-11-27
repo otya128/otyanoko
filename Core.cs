@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net.Mime;
-namespace browser
+namespace otyanoko
 {
     public class ReEncodingException : Exception
     {
@@ -61,42 +61,57 @@ namespace browser
                         if (i.GetAttributeValue("content", "") != "")
                         {
                             var url = i.GetAttributeValue("content", "");
-                            var content = new ContentType(url);
-                            //var urls = i.GetAttributeValue("content", "").ToUpper();
-                            if(content.Parameters.ContainsKey("URL"))
+                            try
                             {
-                                if (!renderonly) UIList.Add(new UI
+                                var content = new ContentType(url);
+                                //var urls = i.GetAttributeValue("content", "").ToUpper();
+                                if (content.Parameters.ContainsKey("URL"))
                                 {
-                                    Node = i,
-                                    CursorTop = render.CursorTop,
-                                    CursorLeft = render.CursorLeft,
-                                    UIType = UIType.Meta,
-                                    State = state,
-                                    Text = ("meta[" + content.Parameters["URL"] + "]"),
-                                    Value = content.Parameters["URL"],
-                                });
-                                render.WriteLink("meta[" + content.Parameters["URL"] + "]");
+                                    if (!renderonly) UIList.Add(new UI
+                                    {
+                                        Node = i,
+                                        CursorTop = render.CursorTop,
+                                        CursorLeft = render.CursorLeft,
+                                        UIType = UIType.Meta,
+                                        State = state,
+                                        Text = ("meta[" + content.Parameters["URL"] + "]"),
+                                        Value = content.Parameters["URL"],
+                                    });
+                                    render.WriteLink("meta[" + content.Parameters["URL"] + "]");
+                                }
+                            }
+                            catch
+                            {
+                                //IE=edgeなどでも例外
+                                //指定されたコンテンツ タイプは無効です。
                             }
                         }
                     }
                     if (i.GetAttributeValue("content", "") != "")
                     {
                         var enc = i.GetAttributeValue("content", "");
-                        var content = new ContentType(enc);
-                        if(!String.IsNullOrEmpty(content.CharSet))
+                        try
                         {
-                            var enc2 = content.CharSet;
-                            try
+                            var content = new ContentType(enc);
+                            if (!String.IsNullOrEmpty(content.CharSet))
                             {
-                                if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc2).CodePage)
+                                var enc2 = content.CharSet;
+                                try
                                 {
-                                    if (!state.EncodingChange) encode = enc2;
-                                    throw new ReEncodingException();
+                                    if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc2).CodePage)
+                                    {
+                                        if (!state.EncodingChange) encode = enc2;
+                                        throw new ReEncodingException();
+                                    }
                                 }
+                                catch (ArgumentException) { }
                             }
-                            catch (ArgumentException) { }
+                            //encodingが不正
                         }
-                        //encodingが不正
+                        catch
+                        {
+                            //指定されたコンテンツ タイプは無効です。
+                        }
                     }
 
                     if (i.GetAttributeValue("charset", "") != "")
@@ -154,35 +169,35 @@ namespace browser
                     }
                 }
                 #region(h)
-                if (i.Name == "h1")
+                
+                //switch化
+                switch (i.Name)
                 {
-                    render.WriteLine();
-                    render.WritePre(" ");
-                }
-                if (i.Name == "h2")
-                {
-                    render.WriteLine();
-                    render.WritePre(" ");
-                }
-                if (i.Name == "h3")
-                {
-                    render.WriteLine();
-                    render.WritePre(" ");
-                }
-                if (i.Name == "h4")
-                {
-                    render.WriteLine();
-                    render.WritePre(" ");
-                }
-                if (i.Name == "h5")
-                {
-                    render.WriteLine();
-                    render.WritePre(" ");
-                }
-                if (i.Name == "h6")
-                {
-                    render.WriteLine();
-                    render.WritePre(" ");
+                    case "h1":
+                        render.WriteLine();
+                        render.WritePre(" ");
+                        break;
+                    case "h2":
+                        render.WriteLine();
+                        render.WritePre(" ");
+                        break;
+                    case "h3":
+                        render.WriteLine();
+                        render.WritePre(" ");
+                        break;
+                    case "h4":
+                        render.WriteLine();
+                        render.WritePre(" "); 
+                        break;
+                    case "h5":
+                        render.WriteLine();
+                        render.WritePre(" "); 
+                        break;
+                    case "h6":
+                        render.WriteLine();
+                        render.WritePre(" ");
+
+                        break;
                 }
                 #endregion
                 if (i.Name == "table")
@@ -251,13 +266,13 @@ namespace browser
                 {
                     render.WriteLine();
                     if (state.Button) render.CursorLeft = state.ButtonUI.CursorLeft;
-                    render.WritePre(new string(' ', state.Margin));
+                    if(state.Margin>0)render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dd")
                 {
                     state.Margin = 4;//margin = 4;
                     render.WriteLine();
-                    render.WritePre(new string(' ', state.Margin));
+                    if (state.Margin > 0) render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dt")
                 {
@@ -486,24 +501,56 @@ namespace browser
                             render.RenderButton(i.GetAttributeValue("value", ""));
                             break;
                         case "":
-                            if (!renderonly && state.Form != null)
-                                state.Form.UIIndexList.Add(UIList.Count);
-                            if (!renderonly)
-                                UIList.Add(new UI
+                            //サイズ適用忘れてた20131127googleのtextboxが短かった原因
+
+                            size = i.GetAttributeValue("size", "");
+
+                            if (size == null || size == "")
+                            {
+                                if (!renderonly && state.Form != null)
+                                    state.Form.UIIndexList.Add(UIList.Count);
+                                if (!renderonly) UIList.Add(new UI
                                 {
                                     Node = i,
                                     CursorLeft = render.CursorLeft,
                                     CursorTop = render.CursorTop,
-                                    CursorLeft2 = render.CursorLeft + 10,
+                                    CursorLeft2 = render.CursorLeft,
                                     CursorTop2 = render.CursorTop,
-                                    Text = "",
+                                    Text = size,
+                                    UIType = UIType.LineTextBox,
                                     State = state,
                                     Form = state.Form,
-                                    UIType = UIType.LineTextBox,
                                     LineTextBox = new LineTextBoxUI(),
                                     Name = i.GetAttributeValue("name", "")
                                 });
-                            render.Write("[________]");
+                                //SetBackgroundColor(ConsoleColor.White);
+                                render.Write("[________]");
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    int siz = Convert.ToInt32(size);
+                                    if (!renderonly && state.Form != null)
+                                        state.Form.UIIndexList.Add(UIList.Count);
+                                    if (!renderonly) UIList.Add(new UI
+                                    {
+                                        Node = i,
+                                        CursorLeft = render.CursorLeft,
+                                        CursorTop = render.CursorTop,
+                                        CursorLeft2 = render.CursorLeft,
+                                        CursorTop2 = render.CursorTop,
+                                        Text = size,
+                                        UIType = UIType.LineTextBox,
+                                        State = state,
+                                        Form = state.Form,
+                                        LineTextBox = new LineTextBoxUI { Size = siz },
+                                        Name = i.GetAttributeValue("name", "")
+                                    });
+                                    render.Write("[" + new string('_', siz) + "]");
+                                }
+                                catch { }
+                            }
                             break;
                         case "image":
                             if (!renderonly && state.Form != null)

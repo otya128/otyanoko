@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Web;
 using WIN32;
 
-namespace browser
+namespace otyanoko
 {
     class Render
     {

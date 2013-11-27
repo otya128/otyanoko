@@ -9,7 +9,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace browser
+namespace otyanoko
 {
     [Serializable]
     class FormData
@@ -74,10 +74,18 @@ namespace browser
     class UIRender
     {
         Render render = Core.render;
+        /// <summary>
+        /// 指定した既存のRenderを使用して、UIRender クラスの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="rend">Render</param>
         public UIRender(Render rend)
         {
             this.render = rend;
         }
+        /// <summary>
+        /// 非選択状態のUIを描画します。
+        /// </summary>
+        /// <param name="ui">描画するUI</param>
         public void RenderUI(UI ui)
         {
             switch (ui.UIType)
@@ -108,6 +116,10 @@ namespace browser
                     break;
             }
         }
+        /// <summary>
+        /// 選択状態のUIを描画します。
+        /// </summary>
+        /// <param name="ui">描画するUI</param>
         public void RenderUISelect(UI ui)
         {
             switch (ui.UIType)
@@ -333,6 +345,10 @@ namespace browser
             Connect.relativeUri(Core.url,System.Web.HttpUtility.HtmlDecode(ui.Value),out url);
             string temp = System.IO.Path.GetTempPath()+Path.GetFileNameWithoutExtension(Path.GetRandomFileName())+Path.GetExtension(url);
             Connect.connect_file(url, temp);
+            var r = new RenderImage(new Bitmap(temp.ToUpper()), render);
+            r.Render();
+            Console.ReadKey(true);
+            r.Dispose();
             System.Diagnostics.Process p =
     System.Diagnostics.Process.Start(temp.ToUpper());
         }
@@ -362,6 +378,7 @@ namespace browser
 
             Connect.connect_file(url, (name).ToUpper());
             //wc.DownloadFile(url, temp);
+            
             System.Diagnostics.Process p =
     System.Diagnostics.Process.Start((name).ToUpper());
         }

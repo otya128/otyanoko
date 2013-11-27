@@ -8,40 +8,50 @@ using System.Text;
 using System.Threading.Tasks;
 using WIN32;
 
-namespace browser
+namespace otyanoko
 {
     class RenderImage:IDisposable
     {
-        Render render = Core.render;
+        Render render;
         public IntPtr handle;
         public IntPtr handle2;
         public Bitmap bmp;
-        public RenderImage(Bitmap bmp,IntPtr handle)
+        /// <summary>
+        /// 指定した既存のイメージとRenderを使用して、RenderImage クラスの新しいインスタンスを初期化します。
+        /// </summary>
+        /// <param name="bmp">Bitmap</param>
+        /// <param name="render">Render</param>
+        public RenderImage(Bitmap bmp,Render render)
         {
+            this.render = render;
             this.bmp = bmp;
-            this.handle2 = handle;
+            this.handle2 = render.hSrceen;
         }
+        /// <summary>
+        /// この RenderImage によって使用されているすべてのリソースを解放します。
+        /// </summary>
         public void Dispose()
         {
+            bmp.Dispose();
             ConsoleFunctions.SetConsoleActiveScreenBuffer(handle2);
             kernel32.CloseHandle(handle);
             handle = IntPtr.Zero;
         }
-
+        /// <summary>
+        /// 新しいコンソールハンドルを生成して画像を描画します。
+        /// </summary>
+        /// <returns>コンソールハンドル</returns>
         public IntPtr Render()
         {
-
+            //if (bmp.Width < Core.ScreenBuffSizeX) return RenderWidth();
+            //(bmp.Width > Core.ScreenBuffSizeX) ? bmp.Width : Core.ScreenBuffSizeX
             Bitmap bitmap = bmp.Clone(
-                new Rectangle(0, 0, bmp.Width, bmp.Height),
-                PixelFormat.Format4bppIndexed
-            );
-
+                 new Rectangle(0, 0, bmp.Width, bmp.Height),
+               PixelFormat.Format4bppIndexed
+               );
             ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[bitmap.Width * bitmap.Height];
             var c = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, Program.NULL, 1, Program.NULL);
-
-
-            ConsoleFunctions.SetConsoleScreenBufferSize(c, new ConsoleFunctions.COORD { X = (short)bitmap.Width, Y = (short)bitmap.Height });
-
+            ConsoleFunctions.SetConsoleScreenBufferSize(c, new ConsoleFunctions.COORD { X = (short)((bmp.Width > Core.ScreenBuffSizeX) ? bmp.Width : Core.ScreenBuffSizeX), Y = (short)((bmp.Height > Core.ScreenBuffSizeY) ? bmp.Height : Core.ScreenBuffSizeY) });
             var color = new Dictionary<Color, int>();
             for (int i = 0; i < bitmap.Palette.Entries.Length; i++)
             {
@@ -77,5 +87,6 @@ namespace browser
             handle = c;
             return c;
         }
+
     }
 }

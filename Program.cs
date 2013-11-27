@@ -17,7 +17,7 @@ using WIN32;
 using System.Reflection;
 using System.Drawing.Imaging;                    // for Color (add reference to  System.Drawing.assembly)
 using System.Net.Mime;
-namespace browser
+namespace otyanoko
 {
     //11/25
     /// <summary>
@@ -107,6 +107,7 @@ namespace browser
                     }
                 }
             }
+            //stackoverflow対策
             int stackSize = 1024 * 1024 * 64;
             Thread th = new Thread(MainThread,
                 stackSize);
@@ -218,7 +219,7 @@ namespace browser
                 string temp = System.IO.Path.GetTempPath() + Path.GetFileNameWithoutExtension(Path.GetRandomFileName()) + Path.GetExtension(Core.url);
                 //var wc = new WebClient();
                 Connect.connect_file(Core.url, temp.ToUpper());
-                var r = new RenderImage(new Bitmap(temp.ToUpper()), render.hSrceen);
+                var r = new RenderImage(new Bitmap(temp.ToUpper()),render);
                 r.Render();
                 Console.ReadKey(true);
                 r.Dispose();
