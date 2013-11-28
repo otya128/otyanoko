@@ -786,6 +786,10 @@ namespace otyanoko
                 {
                     render.WriteTab();
                 }
+                if (i.Name == "div" && i.Closed)
+                {//divはspanと違って改行する
+                    render.WriteLine();
+                }
                 #region(h)
                 if (i.Name == "h1")
                 {

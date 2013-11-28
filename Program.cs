@@ -65,6 +65,13 @@ namespace otyanoko
 
         unsafe static void Main(string[] args)
         {
+            var window = NULL;//ConsoleFunctions.GetConsoleWindow();
+            //var f = new System.Windows.Forms.Form();
+            //f.Show();
+            //window=f.Handle;
+            
+            Debug.WriteLine(user32.CreateWindowEx(0, "BUTTON", "TEST", WindowStyles.WS_CHILD | WindowStyles.WS_VISIBLE,200, 200, 60, 40, window, NULL, user32.GetModuleHandle(0), NULL));
+            Debug.WriteLine(user32.GetModuleHandle(0));
             //Console.WindowWidth = 90;
             //Console.ReadLine();
             //render.WindowLeft=80;
@@ -272,7 +279,7 @@ namespace otyanoko
             tmphScreen = NULL;
             while (true)
             {
-                render.BufferHeight=20;
+                //render.BufferHeight=20;
                 //continue;
                 if (Core.UIList.Count > index||index<0)
                 {
