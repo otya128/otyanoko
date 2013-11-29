@@ -298,7 +298,7 @@ namespace otyanoko
     }
     static class UIProcess
     {
-        static Render render = Core.render;
+        static public Render render = Core.render;
         public static ConsoleKeyInfo TextBox(UI ui)
         {
             return new ConsoleKeyInfo();
@@ -390,6 +390,66 @@ namespace otyanoko
             //wc.DownloadFile(url, temp);
             System.Diagnostics.Process p =
     System.Diagnostics.Process.Start(temp.ToUpper());
+        }
+        public static void ScriptErrorBox(string script)
+        {
+            script = render.Replace(script);
+            var len = Core.ScreenBuffSizeX / 3;
+            int scale = Render.Scale(script);
+            var scr = new string[scale / len + 1];
+            for (int i = 0; i < scr.Length; i++)
+            {
+                try
+                {
+                    scr[i] = script.Substring(i * (Core.ScreenBuffSizeX / 3), Core.ScreenBuffSizeX / 3);
+                }//あおおれｘ
+                catch (ArgumentOutOfRangeException aoorex)
+                {
+                    scr[i] = script.Substring(i * (Core.ScreenBuffSizeX / 3));
+                }
+
+            }
+            if (scr.Length == 0)
+            {
+                scr = new string[1] { script };
+            }
+            var rend = render.CopyToNewRender();
+            rend.Color.BackgroundColor = ConsoleColor.Black;
+            rend.Color.ForegroundColor = ConsoleColor.White;
+            rend.CursorVisible = false;
+            rend.CursorLeft = Core.ScreenBuffSizeX / 3;
+            rend.CursorTop = Core.ScreenBuffSizeY / 4;
+            rend.Write("+" + new string('-', Core.ScreenBuffSizeX / 3) + "+");
+            var str = new string[2];
+            str[0] = "Scriptを実行できません";
+            str[1] = "実行できないScript:";
+            int j = 0;
+            for (int i = Core.ScreenBuffSizeY / 4; i < Core.ScreenBuffSizeY / 4 + 2 + scr.Length; i++)
+            {
+
+                rend.CursorLeft = Core.ScreenBuffSizeX / 3;
+                rend.CursorTop++;
+                if (j < str.Length)
+                {
+                    int length = Render.Scale(str[j]);
+                    rend.WritePre("|" + str[j] + new string(' ', (Core.ScreenBuffSizeX / 3) - length) + "|");
+
+                }
+                else
+                {
+                    int length = Render.Scale(scr[j - 2]);
+                    rend.WritePre("|" + scr[j - 2] + new string(' ', (Core.ScreenBuffSizeX / 3) - length) + "|");
+                }
+                j++;
+            }
+            rend.CursorLeft = Core.ScreenBuffSizeX / 3;
+            rend.CursorTop++;
+            rend.Write("+" + new string('-', Core.ScreenBuffSizeX / 3) + "+");
+            rend.Active();
+            rend.Color.Default();
+            Console.ReadKey();
+            render.Active();
+            rend.CloseHandle();
         }
     }
 }

@@ -143,8 +143,8 @@ namespace otyanoko
                     i = (i + 1) % 4;
                 }
             }*/
-            CloseHandle(render.hSrceen);
-            render.hSrceen = NULL;
+            CloseHandle(render.Handle);
+            render.Handle = NULL;
 
                 //Console.WriteLine("aaAhfh\r\nahg");
                 /*Render.ConsoleBackColorRGB(255, 255, 255);//SetConsoleColorRGB
@@ -161,12 +161,13 @@ namespace otyanoko
         static void MainThread()
         {
             render = Core.render;//Coreのrenderが先に代入されるとは限らない
+            UIProcess.render = Core.render;
             Debug.WriteLine(Environment.OSVersion.Version.Revision);
             Debug.WriteLine(Environment.Version.Major);
             Debug.WriteLine(Connect.UserAgent);
             //Console.S = null;
             var wc = new WebClient();
-            Core.url = "http://chat.kanichat.com/mobile.jsp?roomid=petcwiki";//http://uni.2ch.net/test/read.cgi/kinoko/1373445002/";
+            Core.url = "http://google.com";//http://chat.kanichat.com/mobile.jsp?roomid=petcwiki";//http://uni.2ch.net/test/read.cgi/kinoko/1373445002/";
             string html = "";
 
             html = Connect.connect_get(Core.url, "shift_jis");//wc.DownloadString(url);
@@ -183,16 +184,16 @@ namespace otyanoko
             //Console.Clear();
             //ConsoleFunctions.SetConsoleScreenBufferSize(Render.hSrceen, new ConsoleFunctions.COORD { X=80,Y=25});
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             IntPtr tmphScreen;
             //if (csbi.dwSize.Y != 25)
             {
-                tmphScreen = render.hSrceen;
+                tmphScreen = render.Handle;
 
-                render.hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+                render.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                 render.Color.ForegroundColor = RenderColor.DefaultForeColor;
                 render.Color.BackgroundColor = RenderColor.DefaultBackColor;
-                ConsoleFunctions.SetConsoleScreenBufferSize(render.hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+                ConsoleFunctions.SetConsoleScreenBufferSize(render.Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                 
             
             } 
@@ -215,7 +216,6 @@ namespace otyanoko
             while (true) ;*/
             
             Core.UIList = new List<UI>();
-            
             HtmlNode.ElementsFlags.Remove("form"); 
             HtmlDocument doc = new HtmlDocument();// HAP Objectを生成
             //Console.WriteLine("解析中");
@@ -247,7 +247,10 @@ namespace otyanoko
                 }
                 catch (ReEncodingException ex)
                 {
+                    var title=Console.Title;
+                    Console.Title = "再エンコーディング中...";
                     html = Encoding.GetEncoding(Core.encode).GetString(htmlb);
+                    Console.Title = title;
                     try
                     {
                         doc.LoadHtml(html);// HTMLパース
@@ -269,7 +272,7 @@ namespace otyanoko
             ConsoleKeyInfo key=new ConsoleKeyInfo();
             //Console.BufferHeight= Render.CursorTop;
             //Console.Write(Render.console);
-            ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
+            ConsoleFunctions.SetConsoleActiveScreenBuffer(render.Handle);
             //render.BufferHeight = 10;
            
             render.CursorVisible = false;
@@ -277,6 +280,7 @@ namespace otyanoko
 
             CloseHandle(tmphScreen);
             tmphScreen = NULL;
+
             while (true)
             {
                 //render.BufferHeight=20;
@@ -347,10 +351,11 @@ namespace otyanoko
                     }*/
                     if (Core.UIList[index].UIType == UIType.Button || Core.UIList[index].UIType == UIType.ButtonEx)
                     {
+
                         var f = Core.UIList[index].Form;
                         if (f != null)
                         {
-                            if (f.Method==""||f.Method.ToUpper() == "GET")
+                            if ((f.Method==""||f.Method.ToUpper() == "GET")&&!string.IsNullOrEmpty(f.Action))
                             {
                                 if (f.Enctype == "application/x-www-form-urlencoded")
                                 {
@@ -427,6 +432,10 @@ namespace otyanoko
                                     }
                                 }
                             }
+                            if (!string.IsNullOrEmpty(Core.UIList[index].Node.GetAttributeValue("onclick", "")))
+                            {
+                                UIProcess.ScriptErrorBox(Core.UIList[index].Node.GetAttributeValue("onclick",""));
+                            }
                             //Console.Write(f);
                         }
                     }
@@ -483,7 +492,7 @@ namespace otyanoko
                         selectRender.CursorTop++;
                         selectRender.WritePre("+" + new string('-', length) + "+");
                         selectRender.CursorTop = 2 + select;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(selectRender.hSrceen);
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(selectRender.Handle);
                         while (true)
                         {
 
@@ -530,7 +539,7 @@ namespace otyanoko
                         render.Color.ForegroundColor = (RenderColor.DefaultForeColor);
                         //render.hSrceen = OldhSrceen;
 
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.Handle);
                         Core.UIList[index].Value = Core.UIList[index].Select.ValueList[Core.UIList[index].Select.Select];
                         //RenderColor.OldForegroundColor();
                         //RenderColor.OldBackgroundColor();
@@ -548,9 +557,9 @@ namespace otyanoko
                         /*var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                         ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                         Render.Copy(Render.hSrceen, hSrceen, (short)Render.ScrollY, 23, 1);*/
-                        var hSrceen = render.CopyToNewBuff();
-                        var OldhSrceen = render.hSrceen;
-                        render.hSrceen = hSrceen;
+                        var Handle = render.CopyToNewBuff();
+                        var OldhSrceen = render.Handle;
+                        render.Handle = Handle;
                         render.Color.SetBackgroundColor(Color.Black);
                         render.Color.SetForegroundColor(Color.White);
                         render.CursorTop = Core.ScreenBuffSizeY-1;
@@ -558,15 +567,15 @@ namespace otyanoko
                         //Render.WriteLine(Core.UIList[index].Value);
                         render.CursorTop = Core.ScreenBuffSizeY;
                         render.CursorLeft = 0;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(Handle);
                         render.CursorVisible = true;
                         //UIProcess.ReadLine();
                         Core.UIList[index].Value = Console.ReadLine();
                         render.CursorVisible = false;
                         render.Color.BackgroundColor = (RenderColor.DefaultBackColor);
                         render.Color.ForegroundColor = (RenderColor.DefaultForeColor);
-                        render.hSrceen = OldhSrceen;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
+                        render.Handle = OldhSrceen;
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(render.Handle);
                         render.AutoScreenBuff = true;
                     }
                     if (Core.UIList[index].UIType == UIType.Image)
@@ -578,9 +587,9 @@ namespace otyanoko
                 {
                     var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
                     ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
-                    render.Copy(render.hSrceen, hSrceen);
-                    var OldhSrceen = render.hSrceen;
-                    render.hSrceen = hSrceen;
+                    render.Copy(render.Handle, hSrceen);
+                    var OldhSrceen = render.Handle;
+                    render.Handle = hSrceen;
                     ConsoleFunctions.SetConsoleActiveScreenBuffer(hSrceen);
                     render.Color.SetBackgroundColor(Color.Black);
                     render.Color.SetForegroundColor(Color.White);
@@ -590,8 +599,8 @@ namespace otyanoko
                     render.CursorVisible = false;
                     render.Color.OldForegroundColor();
                     render.Color.OldBackgroundColor();
-                    render.hSrceen = OldhSrceen;
-                    ConsoleFunctions.SetConsoleActiveScreenBuffer(render.hSrceen);
+                    render.Handle = OldhSrceen;
+                    ConsoleFunctions.SetConsoleActiveScreenBuffer(render.Handle);
                     /* CloseHandle(Render.hSrceen);
                      Render.hSrceen = NULL;*/
                 }
@@ -627,6 +636,7 @@ namespace otyanoko
                     continue;
                 }*/
 #endregion
+                //render.Clone().Active();
                 int oldSY = render.ScrollY;
                 try
                 {

@@ -32,6 +32,7 @@ namespace otyanoko
             ConsoleColor OldForeColor = render.Color.ForegroundColor;
             ConsoleColor OldBackColor = render.Color.BackgroundColor;
             bool backColor = false;
+            bool textNone = false;
             foreach (var i in node)
             {
                 
@@ -86,31 +87,33 @@ namespace otyanoko
                                 //指定されたコンテンツ タイプは無効です。
                             }
                         }
-                    }
-                    if (i.GetAttributeValue("content", "") != "")
-                    {
-                        var enc = i.GetAttributeValue("content", "");
-                        try
+                        //FormatExceptionが大量に出てたのでhttp-equivがContentTypeの時に変更
+                        if (i.GetAttributeValue("http-equiv", "").ToUpper() == "CONTENT-TYPE" ||
+                            i.GetAttributeValue("http-equiv", "").ToUpper() == "CONTENTTYPE")//一応
                         {
-                            var content = new ContentType(enc);
-                            if (!String.IsNullOrEmpty(content.CharSet))
+                            var enc = i.GetAttributeValue("content", "");
+                            try
                             {
-                                var enc2 = content.CharSet;
-                                try
+                                var content = new ContentType(enc);
+                                if (!String.IsNullOrEmpty(content.CharSet))
                                 {
-                                    if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc2).CodePage)
+                                    var enc2 = content.CharSet;
+                                    try
                                     {
-                                        if (!state.EncodingChange) encode = enc2;
-                                        throw new ReEncodingException();
+                                        if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc2).CodePage)
+                                        {
+                                            if (!state.EncodingChange) encode = enc2;
+                                            throw new ReEncodingException();
+                                        }
                                     }
+                                    catch (ArgumentException) { }
                                 }
-                                catch (ArgumentException) { }
+                                //encodingが不正
                             }
-                            //encodingが不正
-                        }
-                        catch
-                        {
-                            //指定されたコンテンツ タイプは無効です。
+                            catch (FormatException)//ReEncodingExceptionまでcatchしてた
+                            {
+                                //指定されたコンテンツ タイプは無効です。
+                            }
                         }
                     }
 
@@ -211,13 +214,16 @@ namespace otyanoko
                 }
                 if (i.Name == "li")
                 {
-                    render.WriteLine();
-                    if (state.List)
+                    if (i.InnerText != "")
                     {
+                        render.WriteLine();
+                        if (state.List)
+                        {
 
+                        }
+                        render.WritePre(new string(' ', state.Margin) + "+");
+                        state.List = true;
                     }
-                    render.WritePre(new string(' ', state.Margin) + "+");
-                    state.List = true;
                 }
                 if (i.Name == "pre")
                 {
@@ -232,23 +238,27 @@ namespace otyanoko
                     }
                     else
                     {
-                        state.A = true;//nextstate |= State.A;
-
-                        if (!renderonly) UIList.Add(new UI
+                        if (i.InnerText != "")
                         {
-                            Node = i,
-                            CursorTop = render.CursorTop,
-                            CursorLeft = render.CursorLeft,
-                            UIType = UIType.Link,
-                            Value = i.GetAttributeValue("href", ""),
-                            State = state.Clone()
-                        });
+                            state.A = true;//nextstate |= State.A;
+
+                            if (!renderonly) UIList.Add(new UI
+                            {
+                                Node = i,
+                                CursorTop = render.CursorTop,
+                                CursorLeft = render.CursorLeft,
+                                UIType = UIType.Link,
+                                Value = i.GetAttributeValue("href", ""),
+                                State = state.Clone()
+                            });
+                        }
                     }
                     //Render.WriteLink(i.InnerText);
                 }
 
                 if (i.Name == "#text")
                 {
+                    textNone = true;
                     if (state.A) render.WriteLink(i.InnerText);
                     else
                         if (state.Pre)
@@ -632,6 +642,8 @@ namespace otyanoko
                     }
 
                     render.Write("[");
+                    if (string.IsNullOrEmpty(i.InnerText))//無い場合valueを表示
+                        render.Write(i.GetAttributeValue("value", ""));
                 }
                 if (i.Name == "textarea")
                 {
@@ -788,7 +800,7 @@ namespace otyanoko
                 }
                 if (i.Name == "div" && i.Closed)
                 {//divはspanと違って改行する
-                    render.WriteLine();
+                    if(textNone)render.WriteLine();
                 }
                 #region(h)
                 if (i.Name == "h1")

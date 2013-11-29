@@ -27,6 +27,25 @@ namespace otyanoko
             this.render = rend;
         }
         /// <summary>
+        /// このRenderの属性を取得または設定します。
+        /// </summary>
+        public int TextAttribute
+        {
+            get
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+                return csbi.wAttributes;
+
+            }
+            set
+            {
+                var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(value));
+            }
+        }
+        /// <summary>
         /// Renderの前景色を取得または設定します。
         /// </summary>
         public ConsoleColor ForegroundColor
@@ -34,17 +53,17 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 return (ConsoleColor)(csbi.wAttributes & 0x000F);
                 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
                 //Console.BackgroundColor = cc;
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
                 //ForegroundColorOld = Console.ForegroundColor;
             }
         }
@@ -56,16 +75,16 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 return (ConsoleColor)((csbi.wAttributes & 0x00F0)>>4);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0xFF0F)>>4);
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
             }
 
         }
@@ -77,15 +96,15 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 return (ConsoleColor)(csbi.wAttributes & 0x000F);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)value));
             }
         }
         /// <summary>
@@ -96,15 +115,15 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
                 return (ConsoleColor)((csbi.wAttributes & 0x00F0)>>4);
 
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
+                ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | (int)value << 4));
             }
         }
         public ConsoleColor ForegroundColorOld = Console.ForegroundColor;
@@ -115,10 +134,10 @@ namespace otyanoko
         public void SetForegroundColor(ConsoleColor cc)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
             //Console.BackgroundColor = cc;
-            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)cc));
+            ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)cc));
             //ForegroundColorOld = Console.ForegroundColor;
             Console.ForegroundColor = cc;
         }
@@ -135,45 +154,45 @@ namespace otyanoko
         public void SetForegroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             ForegroundColorOld = (ConsoleColor)(csbi.wAttributes & 0x000F);//Console.BackgroundColor;
             //ForegroundColorOld = Console.ForegroundColor;
         }
         public void OldForegroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
-            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)ForegroundColorOld));
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+            ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFFF0) | (int)ForegroundColorOld));
             //Console.ForegroundColor = ForegroundColorOld;
         }
         public ConsoleColor BackgroundColorOld = Console.BackgroundColor;
         public void SetBackgroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);
-            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) >> 4));//Console.BackgroundColor;
+            ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) >> 4));//Console.BackgroundColor;
         }
         public void SetBackgroundColor(ConsoleColor cc)
         {
             var csbi=new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);//Console.BackgroundColor;
             Console.BackgroundColor = cc;
-            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)cc << 4)));
+            ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)cc << 4)));
         }
         public void SetBackgroundColor(Color cc)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             BackgroundColorOld = (ConsoleColor)((csbi.wAttributes & 0x00F0) >> 4);//BackgroundColorOld = Console.BackgroundColor;
             ConsoleBackColorRGB(cc);
         }
         public void OldBackgroundColor()
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
-            ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)BackgroundColorOld << 4)));
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
+            ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0xFF0F) | ((int)BackgroundColorOld << 4)));
             //Console.BackgroundColor = BackgroundColorOld;
         }
         public void ConsoleBackColorRGB(Color color)
@@ -186,9 +205,9 @@ namespace otyanoko
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.Handle, ref csbe);
             int mindex = SearchColor(r, g, b);
-            SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes & 0xFF0F) | (mindex << 4)));
+            SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbe.wAttributes & 0xFF0F) | (mindex << 4)));
         }
         public void ConsoleForeColorRGB(Color color)
         {
@@ -200,9 +219,9 @@ namespace otyanoko
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.Handle, ref csbe);
             int mindex = SearchColor(r, g, b);
-            SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbe.wAttributes/* & 0x1110*/) | mindex));
+            SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbe.wAttributes/* & 0x1110*/) | mindex));
         }
         /// <summary>
         /// RGBからコンソールの16色に変換します。
@@ -216,7 +235,7 @@ namespace otyanoko
             CONSOLE_SCREEN_BUFFER_INFOEX csbe = new CONSOLE_SCREEN_BUFFER_INFOEX();
             csbe.cbSize = 96;// (int)Marshal.SizeOf(csbe);                    // 96 = 0x60
             //IntPtr hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);    // 7
-            bool brc = GetConsoleScreenBufferInfoEx(render.hSrceen, ref csbe);
+            bool brc = GetConsoleScreenBufferInfoEx(render.Handle, ref csbe);
             double[] s = new double[16];
 
 
@@ -248,12 +267,17 @@ namespace otyanoko
         public void Under(bool flg)
         {
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-            ConsoleFunctions.GetConsoleScreenBufferInfo(render.hSrceen, out csbi);
+            ConsoleFunctions.GetConsoleScreenBufferInfo(render.Handle, out csbi);
             if (flg)
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF) | (0x8 << 12)));
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF) | (0x8 << 12)));
             else
-                ConsoleFunctions.SetConsoleTextAttribute(render.hSrceen, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF)));
+                ConsoleFunctions.SetConsoleTextAttribute(render.Handle, Convert.ToUInt16(((int)csbi.wAttributes & 0x4FFF)));
             
+        }
+        public void Default()
+        {
+            this.ForegroundColor = RenderColor.DefaultBackColor;
+            this.BackgroundColor = RenderColor.DefaultForeColor;
         }
         [StructLayout(LayoutKind.Sequential)]
         internal struct COORD

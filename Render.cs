@@ -24,13 +24,46 @@ namespace otyanoko
         /// <summary>
         /// 指定したコンソールハンドルを使用して、Render クラスの新しいインスタンスを初期化します。
         /// </summary>
-        /// <param name="hSrceen1">コンソールハンドル</param>
-        public Render(IntPtr hSrceen1)
+        /// <param name="Handle1">コンソールハンドル</param>
+        public Render(IntPtr Handle1)
         {
             // TODO: Complete member initialization
-            this.hSrceen = hSrceen1;
+            this.Handle = Handle1;
             this.Color = new RenderColor(this);
             this.UI    = new UIRender(this);
+        }
+        /// <summary>
+        /// コンソールハンドルを初期化します。
+        /// </summary>
+        public Render CreateHandle()
+        {
+            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            ConsoleFunctions.SetConsoleScreenBufferSize(this.Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+            return this;
+        }
+        /// <summary>
+        /// バッファサイズを指定して、コンソールハンドルを初期化します。
+        /// </summary>
+        public Render CreateHandle(int x,int y)
+        {
+            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            ConsoleFunctions.SetConsoleScreenBufferSize(this.Handle, new ConsoleFunctions.COORD { X = (short)x, Y = (short)y });
+            return this;
+        }
+        /// <summary>
+        /// このRenderを表示します。
+        /// </summary>
+        public bool Active()
+        {
+            return ConsoleFunctions.SetConsoleActiveScreenBuffer(this.Handle);
+        }
+        /// <summary>
+        /// このRenderのハンドルを閉じます。
+        /// </summary>
+        public void CloseHandle()
+        {
+            kernel32.CloseHandle(this.Handle);
+            this.Handle = NULL;
         }
         /// <summary>
         /// バッファー領域の高さを取得または設定します。
@@ -40,12 +73,12 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.dwSize.Y;
             }
             set
             {
-                ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)BufferWidth, Y = (short)value });
+                ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)BufferWidth, Y = (short)value });
             }
         }
         /// <summary>
@@ -56,12 +89,12 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.dwSize.X;
             }
             set
             {
-                ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)value, Y = (short)BufferHeight });
+                ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)value, Y = (short)BufferHeight });
             }
         }
         /// TODO:SetConsoleWindowInfo使ってスクロールできるらしい
@@ -74,7 +107,7 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.srWindow.Bottom;
             }
             set
@@ -82,7 +115,7 @@ namespace otyanoko
                 //Console.WindowHeight = value;
                 //return;
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 /*csbi.srWindow.Bottom=-40;
     csbi.srWindow.Left = -40;
     csbi.srWindow.Right = 00;*/
@@ -93,7 +126,7 @@ namespace otyanoko
                 //csbi.srWindow.Top -= 5;//X1
                 //csbi.srWindow.Left += 20;//Y1
                 // = new ConsoleFunctions.SMALL_RECT { Bottom = 0, Left = 0, Right = 30, Top = 30 };//(short)value;
-                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(hSrceen, true, ref csbi.srWindow));
+                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(Handle, true, ref csbi.srWindow));
             }
         }
         /// <summary>
@@ -114,16 +147,16 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.srWindow.Right;
             }
             set
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 csbi.srWindow.Left = 0;
                 csbi.srWindow.Right = (short)value;
-                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(hSrceen, true, ref csbi.srWindow));
+                Debug.WriteLine(ConsoleFunctions.SetConsoleWindowInfo(Handle, true, ref csbi.srWindow));
             }
         }
         /// <summary>
@@ -134,12 +167,12 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.dwCursorPosition.X;
             }
             set
             {
-                ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)value, Y = (short)CursorTop });
+                ConsoleFunctions.SetConsoleCursorPosition(Handle, new ConsoleFunctions.COORD { X = (short)value, Y = (short)CursorTop });
             }
         }
         /// <summary>
@@ -150,12 +183,12 @@ namespace otyanoko
             get
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
                 return csbi.dwCursorPosition.Y;
             }
             set
             {
-                ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)CursorLeft, Y = (short)value });
+                ConsoleFunctions.SetConsoleCursorPosition(Handle, new ConsoleFunctions.COORD { X = (short)CursorLeft, Y = (short)value });
             }
         }
         /// <summary>
@@ -166,13 +199,13 @@ namespace otyanoko
             get
             {
                 var cci = new ConsoleFunctions.CONSOLE_CURSOR_INFO();
-                ConsoleFunctions.GetConsoleCursorInfo(hSrceen, out cci);
+                ConsoleFunctions.GetConsoleCursorInfo(Handle, out cci);
                 return cci.Visible;
             }
             set
             {
                 var cci = new ConsoleFunctions.CONSOLE_CURSOR_INFO { Size = CursorSize, Visible = value };
-                ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
+                ConsoleFunctions.SetConsoleCursorInfo(Handle, ref cci);
             }
         }
         /// <summary>
@@ -183,13 +216,13 @@ namespace otyanoko
             get
             {
                 var cci = new ConsoleFunctions.CONSOLE_CURSOR_INFO();
-                ConsoleFunctions.GetConsoleCursorInfo(hSrceen, out cci);
+                ConsoleFunctions.GetConsoleCursorInfo(Handle, out cci);
                 return cci.Size;
             }
             set
             {
                 var cci = new ConsoleFunctions.CONSOLE_CURSOR_INFO { Size = value, Visible = CursorVisible };
-                ConsoleFunctions.SetConsoleCursorInfo(hSrceen, ref cci);
+                ConsoleFunctions.SetConsoleCursorInfo(Handle, ref cci);
             }
         }
         /// <summary>
@@ -231,7 +264,7 @@ namespace otyanoko
         /// <summary>
         /// 描画対象のコンソールハンドル
         /// </summary>
-        public IntPtr hSrceen;
+        public IntPtr Handle;
         public static IntPtr StdHandle;
         public static IntPtr NULL = IntPtr.Zero;
         /// <summary>
@@ -355,12 +388,12 @@ namespace otyanoko
             if (AutoScreenBuff)
             {
                 var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
-                ConsoleFunctions.GetConsoleScreenBufferInfo(hSrceen, out csbi);
+                ConsoleFunctions.GetConsoleScreenBufferInfo(Handle, out csbi);
 
                 if (csbi.dwSize.Y < csbi.dwCursorPosition.Y + (Encoding.GetEncoding(932).GetBytes(arg).Length / Core.ScreenBuffSizeY) + 20)
                 {
                     csbi.dwSize.Y *= 2;
-                    ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, csbi.dwSize);
+                    ConsoleFunctions.SetConsoleScreenBufferSize(Handle, csbi.dwSize);
                 }
             }
             return;
@@ -371,7 +404,7 @@ namespace otyanoko
             //console.Append(Replace(arg));
             uint cell;
             arg = Replace(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.Write(Replace(arg));
         }
         public void WritePre(string arg)
@@ -381,7 +414,7 @@ namespace otyanoko
             //console.Append(Replace(arg)); 
             uint cell;
             arg = ReplacePre(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.Write(ReplacePre(arg));
         }
         public void WriteLink(string arg)
@@ -394,7 +427,7 @@ namespace otyanoko
             //Console.Write(Replace(arg));
             uint cell;
             arg = Replace(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             this.Color.Under(false);
             this.Color.ForegroundColor = c;
             
@@ -406,7 +439,7 @@ namespace otyanoko
             //Console.WriteLine(arg.Replace("\n", ""));
             uint cell;
             arg = Replace(arg)+"\n";
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
         public void WriteLine()
         {
@@ -416,7 +449,7 @@ namespace otyanoko
             uint cell;
             string arg = "\n";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
             //Console.WriteLine();
         }
         public void WriteTab()
@@ -425,7 +458,7 @@ namespace otyanoko
 
             string arg = "\t";//new String(' ', CursorLeft % 3);//"\t";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
         public void WriteTab(int margin)
         {
@@ -433,26 +466,26 @@ namespace otyanoko
 
             string arg = new String(' ', CursorLeft % margin);//"\t";
             Scroll(arg);
-            ConsoleFunctions.WriteConsole(this.hSrceen, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
+            ConsoleFunctions.WriteConsole(this.Handle, arg, Convert.ToUInt32(Encoding.GetEncoding(932).GetBytes(arg).Length), out cell, NULL);
         }
-        unsafe public bool Copy(IntPtr hSrceen1, IntPtr hSrceen, short cursorTop_ = -1, short size = -1)
+        unsafe public bool Copy(IntPtr Handle1, IntPtr Handle, short cursorTop_ = -1, short size = -1)
         {
             if (cursorTop_ == -1) cursorTop_ = 0;
             if (size == -1) size = Convert.ToInt16(Core.ScreenBuffSizeY - 1);
-            Copy(hSrceen1, hSrceen, cursorTop_, size,0);//if (Top == -1) Top = 0;
+            Copy(Handle1, Handle, cursorTop_, size, 0);//if (Top == -1) Top = 0;
             return false;
         }
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="hSrceen1">コピー元</param>
-        /// <param name="hSrceen">コピー先</param>
+        /// <param name="Handle1">コピー元</param>
+        /// <param name="Handle">コピー先</param>
         /// <returns></returns>Core.ScreenBuffSizeX
-        unsafe public bool Copy(IntPtr hSrceen1,IntPtr hSrceen,short cursorTop_,short size,short Top)
+        unsafe public bool Copy(IntPtr Handle1, IntPtr Handle, short cursorTop_, short size, short Top)
         {
             ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[Core.ScreenBuffSizeX * size];
             var sm = new ConsoleFunctions.SMALL_RECT { Top = cursorTop_, Left = 0, Bottom = Convert.ToInt16(Convert.ToInt16(size) + cursorTop_), Right = (short)Core.ScreenBuffSizeX };
-            ConsoleFunctions.ReadConsoleOutput(hSrceen1,
+            ConsoleFunctions.ReadConsoleOutput(Handle1,
                 ci,
                 new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = size },
                 new ConsoleFunctions.COORD { X = 0, Y = 0 },
@@ -462,13 +495,13 @@ namespace otyanoko
             //sm = new ConsoleFunctions.SMALL_RECT { Top = cursorTop_, Left = 0, Bottom = Convert.ToInt16(Convert.ToInt16(24) + cursorTop_), Right = 80 };
            
             fixed (ConsoleFunctions.CHAR_INFO* p = ci)
-                
-            ConsoleFunctions.WriteConsoleOutput(hSrceen, 
+
+            ConsoleFunctions.WriteConsoleOutput(Handle, 
                 new IntPtr(p),
                 new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = size },
                 new ConsoleFunctions.COORD { X = 0, Y = 0 },
                 ref sm);
-            ConsoleFunctions.SetConsoleCursorPosition(hSrceen, new ConsoleFunctions.COORD { X = (short)0, Y = (short)cursorTop_ });
+            ConsoleFunctions.SetConsoleCursorPosition(Handle, new ConsoleFunctions.COORD { X = (short)0, Y = (short)cursorTop_ });
             /*for (int j = 0; j < ci.Length; j++)
             {
                 var i = ci[j];
@@ -495,10 +528,10 @@ namespace otyanoko
         [Obsolete("use method CopyToNewRender")]
         public IntPtr CopyToNewBuff()
         {
-            var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
-            ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
-            this.Copy(this.hSrceen, hSrceen, (short)this.ScrollY, 25, 0);
-            return hSrceen;
+            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+            this.Copy(this.Handle, Handle, (short)this.ScrollY, 25, 0);
+            return Handle;
         }
         /// <summary>
         /// このRenderの現在表示されている部分をコピーして、新しいRenderインスタンスを生成します。
@@ -506,12 +539,105 @@ namespace otyanoko
         /// <returns>このメソッドが作成する新しい Render</returns>
         public Render CopyToNewRender()
         {
-            var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
-            ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
-            this.Copy(this.hSrceen, hSrceen, (short)this.ScrollY, 25, 0);
-            return new Render(hSrceen);
+            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
+            this.Copy(this.Handle, Handle, (short)this.ScrollY, 25, 0);
+            return new Render(Handle);
         }
+        /// <summary>
+        /// このRenderの指定部分をコピーして、新しいRenderインスタンスを生成します。
+        /// </summary>
+        /// <param name="Handle"></param>
+        /// <param name="x1"></param>
+        /// <param name="y1"></param>
+        /// <param name="x2"></param>
+        /// <param name="y2"></param>
+        /// <returns></returns>
+        unsafe public bool CopyTo(IntPtr Handle, int x1, int y1, int x2, int y2)
+        {
+            short x1s = (short)x1, y1s = (short)y1, x2s = (short)x2, y2s = (short)y2;
+            ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[(x2 - x1) * (y2 - y1)];
+            
+            var sm = new ConsoleFunctions.SMALL_RECT { Top = y1s, Left = x1s, Bottom = y2s, Right = x2s };
+            ConsoleFunctions.ReadConsoleOutput(this.Handle,
+                ci,
+                new ConsoleFunctions.COORD { X = (short)(x2 - x1), Y = (short)(y2 - y1) },
+                new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                ref sm
+                );
+            sm = new ConsoleFunctions.SMALL_RECT { Top = y1s, Left = x1s, Bottom = y2s, Right = x2s };
+            //sm = new ConsoleFunctions.SMALL_RECT { Top = cursorTop_, Left = 0, Bottom = Convert.ToInt16(Convert.ToInt16(24) + cursorTop_), Right = 80 };
 
+            fixed (ConsoleFunctions.CHAR_INFO* p = ci)
+
+                ConsoleFunctions.WriteConsoleOutput(Handle,
+                    new IntPtr(p),
+                    new ConsoleFunctions.COORD { X = (short)(x2 - x1), Y = (short)(y2 - y1) },
+                    new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                    ref sm);
+            return false;
+        }
+        unsafe public bool CopyTo(IntPtr Handle, Rectangle rect)
+        {
+            short x1s = (short)rect.X, y1s = (short)rect.Y, x2s = (short)rect.Right, y2s = (short)rect.Bottom;
+            ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[rect.Width * rect.Height];
+            var sm = new ConsoleFunctions.SMALL_RECT { Top = y1s, Left = x1s, Bottom = y2s, Right = x2s };
+            ConsoleFunctions.ReadConsoleOutput(this.Handle,
+                ci,
+                new ConsoleFunctions.COORD { X = (short)rect.Width, Y = (short)rect.Height },
+                new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                ref sm
+                );
+            sm = new ConsoleFunctions.SMALL_RECT { Top = y1s, Left = x1s, Bottom = y2s, Right = x2s };
+            fixed (ConsoleFunctions.CHAR_INFO* p = ci)
+
+                ConsoleFunctions.WriteConsoleOutput(Handle,
+                    new IntPtr(p),
+                    new ConsoleFunctions.COORD { X = (short)rect.Width, Y = (short)rect.Height },
+                    new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                    ref sm);
+            return false;
+        }
+        public static int Scale(string text)
+        {
+            return Encoding.GetEncoding(932).GetBytes(text).Length;
+        }
+        unsafe public Render Clone()
+        {
+            //int Get = this.ScrollY;
+            var rend = new Render().CreateHandle(this.BufferWidth, this.BufferHeight);
+            //rend.BufferWidth  = this.BufferWidth;
+            //rend.BufferHeight = this.BufferHeight;
+            var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO_EX();
+            csbi.cbSize = 96;
+            //ConsoleFunctions.GetConsoleScreenBufferInfoEx(this.Handle, ref csbi);
+            //ConsoleFunctions.SetConsoleScreenBufferInfoEx(rend.Handle, ref csbi);
+
+            short x2s = (short)this.BufferWidth, y2s = (short)this.BufferHeight;
+            ConsoleFunctions.CHAR_INFO[] ci = new ConsoleFunctions.CHAR_INFO[this.BufferWidth * this.BufferHeight];
+            var sm = new ConsoleFunctions.SMALL_RECT { Top = 0, Left = 0, Bottom = y2s, Right = x2s };
+            ConsoleFunctions.ReadConsoleOutput(this.Handle,
+                ci,
+                new ConsoleFunctions.COORD { X = x2s, Y = y2s },
+                new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                ref sm
+                );
+            sm = new ConsoleFunctions.SMALL_RECT { Top = 0, Left = 0, Bottom = y2s, Right = x2s };
+            fixed (ConsoleFunctions.CHAR_INFO* p = ci)
+
+                ConsoleFunctions.WriteConsoleOutput(rend.Handle,
+                    new IntPtr(p),
+                    new ConsoleFunctions.COORD { X = x2s, Y = y2s },
+                    new ConsoleFunctions.COORD { X = 0, Y = 0 },
+                    ref sm);
+            rend.CursorLeft = this.CursorLeft;
+            rend.CursorTop = this.CursorTop;
+            rend.CursorSize = this.CursorSize;
+            rend.CursorVisible = this.CursorVisible;
+            rend.Color.TextAttribute = rend.Color.TextAttribute;
+            //rend.ScrollY = Get;
+            return rend;
+        }
 
 
 
