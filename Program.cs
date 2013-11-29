@@ -77,7 +77,7 @@ namespace otyanoko
             //render.WindowLeft=80;
             //Console.ReadLine();
             //while (true) ;
-            var a=new ContentType("text/html;charset=hogejhoege;URL=hoge");
+            var a=new otyanoko.ContentType("text/html;charset=hogejhoege;URL=hoge");
             Debug.WriteLine(a.CharSet);
             Debug.WriteLine(a.MediaType);
             Debug.WriteLine(a.Parameters["URL"]);
