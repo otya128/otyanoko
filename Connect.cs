@@ -10,7 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
-using System.Net.Mime;
+//using System.Net.Mime;
 namespace otyanoko
 {
     //11/26 System.Net.Mimeに変更

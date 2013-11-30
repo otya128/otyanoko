@@ -6,6 +6,9 @@ using System.Text;
 
 namespace otyanoko
 {
+    /// <summary>
+    /// System.Net.Mimeだと0;URL=がエラー
+    /// </summary>
     class ContentType
     {
         public ContentType(string content)
@@ -14,7 +17,7 @@ namespace otyanoko
             this.mediaType = String.Empty;
             this.charset = String.Empty;
             var param = content.Split(';');
-            for (int i = 0; i < param.Length;i++ )
+            for (int i = 0; i < param.Length; i++)
             {
                 var p = param[i];
                 var key = String.Empty;
@@ -23,12 +26,12 @@ namespace otyanoko
                 {
                     var k = p[j];
                     if (k == ' ') continue;
-                    if (k == '=') { iskey = false; key=key.ToLower();continue; }
+                    if (k == '=') { iskey = false; key = key.ToLower(); continue; }
                     if (iskey) key += k;
                     else
                         this.parameters[key] += k;
                 }
-                if (i == 0) this.mediaType = key;
+                if (i == 0) this.mediaType = key;//MediaTypeの確認は行わない
                 if (key == "charset") this.charset = this.parameters[key];
             }
         }

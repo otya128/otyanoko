@@ -62,7 +62,17 @@ namespace otyanoko
         private const Int32 MF_BYPOSITION = 0x400;
         private const Int32 MF_REMOVE = 0x1000;
         public const int WM_MENUSELECT = 0x011F;
+        static int testi = 0;
+        static void test(List<HojichaHtmlNode> hhn)
+        {
+            foreach (var i in hhn)
+            {
+                Debug.Write(new String(' ', testi)); Debug.Write(i.Name); Debug.Write(i.InnerText);// Debug.WriteLine(i.Closed);
+                Debug.WriteLine("");
+                if (i.ChildNodes != null) { testi++; test(i.ChildNodes); testi--; }
 
+            }
+        }
         unsafe static void Main(string[] args)
         {
             var window = NULL;//ConsoleFunctions.GetConsoleWindow();
@@ -77,6 +87,12 @@ namespace otyanoko
             //render.WindowLeft=80;
             //Console.ReadLine();
             //while (true) ;
+            string htm = "<html><head><meta http-equiv=\"\"></meta></head><body><h1>test</h1><br><h1>test</h1><nestsuru></nestsuru></body></html>";
+            var aa = new HojichaHtmlDocument‎();
+            aa.LoadHtml(htm);
+            var aab = aa.DocumentNode.ChildNodes;
+            Debug.WriteLine(htm);
+            test(aab);
             var a=new otyanoko.ContentType("text/html;charset=hogejhoege;URL=hoge");
             Debug.WriteLine(a.CharSet);
             Debug.WriteLine(a.MediaType);
@@ -216,6 +232,10 @@ namespace otyanoko
             while (true) ;*/
             
             Core.UIList = new List<UI>();
+            foreach (var i in HtmlNode.ElementsFlags)
+            {
+                Debug.WriteLine(i);
+            }
             HtmlNode.ElementsFlags.Remove("form"); 
             HtmlDocument doc = new HtmlDocument();// HAP Objectを生成
             //Console.WriteLine("解析中");
