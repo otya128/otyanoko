@@ -67,9 +67,24 @@ namespace otyanoko
         {
             foreach (var i in hhn)
             {
-                Debug.Write(new String(' ', testi)); Debug.Write(i.Name); Debug.Write(i.InnerText);// Debug.WriteLine(i.Closed);
+                Debug.Write(new String(' ', testi)); Debug.Write(i.Name); Debug.Write("\tInnerText:" + i.InnerText);
+                foreach (var j in i.Attributes)
+                {
+                    Debug.Write("\t" + j);
+                }// Debug.WriteLine(i.Closed);
                 Debug.WriteLine("");
                 if (i.ChildNodes != null) { testi++; test(i.ChildNodes); testi--; }
+
+            }
+        }
+        static int test2i = 0;
+        static void test2(HtmlNodeCollection hhn)
+        {
+            foreach (var i in hhn)
+            {
+                Debug.Write(new String(' ', test2i)); Debug.Write(i.Name); Debug.Write("\tInnerText:" + i.InnerText);// Debug.WriteLine(i.Closed);
+                Debug.WriteLine("");
+                if (i.ChildNodes != null) { test2i++; test2(i.ChildNodes); test2i--; }
 
             }
         }
@@ -86,13 +101,19 @@ namespace otyanoko
             //Console.ReadLine();
             //render.WindowLeft=80;
             //Console.ReadLine();
-            //while (true) ;
-            string htm = "<html><head><meta http-equiv=\"\"></meta></head><body><h1>test</h1><br><h1>test</h1><nestsuru></nestsuru></body></html>";
+            //while (true) ;<h1>test</h>でもh1タグが閉じられる(記述ミスによるstackoverflow防止)
+            string htm = "<html><head><meta _http-equiv=\"_hoge\t\" _hoge=\"_huga\" alt test='single' iron=ore hugee></head><body><h1>test</h1><br><h1>test</h1><nestsuru/><nestsuru/><br><li>hoge</li><li>hoge<li>hoge<h1>test</h>test</body></html>";
             var aa = new HojichaHtmlDocument‎();
             aa.LoadHtml(htm);
             var aab = aa.DocumentNode.ChildNodes;
             Debug.WriteLine(htm);
+            Debug.WriteLine("--------Hojicha--------");
             test(aab);
+            var aba = new HtmlDocument();
+            aba.LoadHtml(htm);
+            var abb = aba.DocumentNode.ChildNodes;
+            Debug.WriteLine("----HtmlAgilityPack----");
+            test2(abb);
             var a=new otyanoko.ContentType("text/html;charset=hogejhoege;URL=hoge");
             Debug.WriteLine(a.CharSet);
             Debug.WriteLine(a.MediaType);
@@ -232,7 +253,7 @@ namespace otyanoko
             while (true) ;*/
             
             Core.UIList = new List<UI>();
-            foreach (var i in HtmlNode.ElementsFlags)
+            foreach (var i in HojichaHtmlNode.ElementsFlags)
             {
                 Debug.WriteLine(i);
             }
