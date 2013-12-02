@@ -1,4 +1,6 @@
-﻿using HtmlAgilityPack;
+﻿#undef HAP
+#define Hojicha
+using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,7 +29,12 @@ namespace otyanoko
     [Serializable]
     class UI
     {
+#if HAP
         public HtmlNode Node;
+#endif
+#if Hojicha
+        public HojichaHtmlNode Node;
+#endif
         public int CursorTop;
         public int CursorLeft;
         public int CursorTop2;

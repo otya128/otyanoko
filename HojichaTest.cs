@@ -1,4 +1,4 @@
-﻿using HtmlAgilityPack;
+﻿//using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,26 +9,14 @@ using System.Threading.Tasks;
 //using System.Net.Mime;
 namespace otyanoko
 {
-    public class ReEncodingException : Exception
-    {
-    }
     partial class Core
     {
-
-        public static Render render = new Render();
-        static public List<UI> UIList;
-        static public string encode = "utf-8";
-        static public int ScreenBuffSizeX = 80;
-        static public int ScreenBuffSizeY = 25;
-                public static string url;
-                public static ContentType ContentType = new ContentType("text/html");
-#if HAP
-        static public HtmlNodeCollection getHtml(HtmlNodeCollection node)
+        static public List<HojichaHtmlNode> getHtml(List<HojichaHtmlNode> node)
         {
             return getHtml(node, new StateClass());
         }
 
-        static public HtmlNodeCollection getHtml(HtmlNodeCollection node, StateClass state, bool renderonly = false)// State nextstate = 0, int margin = 0)
+        static public List<HojichaHtmlNode> getHtml(List<HojichaHtmlNode> node, StateClass state, bool renderonly = false)// State nextstate = 0, int margin = 0)
         {
             int count = 0;
             ConsoleColor OldForeColor = render.Color.ForegroundColor;
@@ -37,7 +25,7 @@ namespace otyanoko
             bool textNone = false;
             foreach (var i in node)
             {
-                
+
                 if (i.Name == "?xml")
                 {
                     if (i.GetAttributeValue("encoding", "") != "")
@@ -48,7 +36,7 @@ namespace otyanoko
                             if (Encoding.GetEncoding(encode).CodePage != Encoding.GetEncoding(enc).CodePage)
                             {
                                 encode = enc;
-                                if(!state.EncodingChange)throw new ReEncodingException();
+                                if (!state.EncodingChange) throw new ReEncodingException();
                             }
                         }
                         catch (ArgumentException ex)
@@ -167,40 +155,48 @@ namespace otyanoko
                                         render.Color.BackgroundColor = (ConsoleColor)(int)render.Color.ForegroundColor + 1;
                                 backColor = true;
                             }
-                        }catch
+                        }
+                        catch
                         {
                             // blown は Int32 の有効な値ではありません。
                         }
                     }
                 }
                 #region(h)
-                
+
                 //switch化
                 switch (i.Name)
                 {
                     case "h1":
+                        
                         render.WriteLine();
                         render.WritePre(" ");
+                        render.Color.Under(true);
                         break;
                     case "h2":
                         render.WriteLine();
                         render.WritePre(" ");
+                        render.Color.Under(true);
                         break;
                     case "h3":
                         render.WriteLine();
                         render.WritePre(" ");
+                        render.Color.Under(true);
                         break;
                     case "h4":
                         render.WriteLine();
-                        render.WritePre(" "); 
+                        render.WritePre(" ");
+                        render.Color.Under(true);
                         break;
                     case "h5":
                         render.WriteLine();
-                        render.WritePre(" "); 
+                        render.WritePre(" ");
+                        render.Color.Under(true);
                         break;
                     case "h6":
                         render.WriteLine();
                         render.WritePre(" ");
+                        render.Color.Under(true);
 
                         break;
                 }
@@ -278,7 +274,7 @@ namespace otyanoko
                 {
                     render.WriteLine();
                     if (state.Button) render.CursorLeft = state.ButtonUI.CursorLeft;
-                    if(state.Margin>0)render.WritePre(new string(' ', state.Margin));
+                    if (state.Margin > 0) render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dd")
                 {
@@ -288,7 +284,8 @@ namespace otyanoko
                 }
                 if (i.Name == "dt")
                 {
-                    //Render.WriteLine();
+                    state.Margin = 0;//閉じタグなしに対応
+                    render.WriteLine();//閉じタグなしに対応
                 }
                 if (i.Name == "hr")
                 {
@@ -308,7 +305,7 @@ namespace otyanoko
                     if (state.A) render.WriteLink(alt);
                     else
                     {
-                        if (!renderonly)Core.UIList.Add(new UI
+                        if (!renderonly) Core.UIList.Add(new UI
                         {
                             Node = i,
                             CursorLeft = render.CursorLeft,
@@ -350,7 +347,7 @@ namespace otyanoko
                     switch (type)
                     {
                         case "hidden":
-                            if (!renderonly && state.Form!=null) state.Form.UIList.Add(new UI
+                            if (!renderonly && state.Form != null) state.Form.UIList.Add(new UI
                             {
                                 Node = i,
                                 CursorLeft = render.CursorLeft,
@@ -415,7 +412,7 @@ namespace otyanoko
                                 }
                                 catch { }
                             }
-                            
+
                             //OldBackgroundColor();
                             break;
                         case "password":
@@ -625,19 +622,19 @@ namespace otyanoko
                     if (!renderonly)
                     {
                         var ui = new UI
-                            {
-                                Node = i,
-                                CursorLeft = render.CursorLeft,
-                                CursorTop = render.CursorTop,
-                                CursorLeft2 = render.CursorLeft + i.GetAttributeValue("value", "").Length,
-                                CursorTop2 = render.CursorTop,
-                                Text = i.GetAttributeValue("value", ""),
-                                UIType = UIType.ButtonEx,
+                        {
+                            Node = i,
+                            CursorLeft = render.CursorLeft,
+                            CursorTop = render.CursorTop,
+                            CursorLeft2 = render.CursorLeft + i.GetAttributeValue("value", "").Length,
+                            CursorTop2 = render.CursorTop,
+                            Text = i.GetAttributeValue("value", ""),
+                            UIType = UIType.ButtonEx,
 
-                                Form = state.Form,
-                                Name = i.GetAttributeValue("name", ""),
-                                Value = i.GetAttributeValue("value", ""),
-                            };
+                            Form = state.Form,
+                            Name = i.GetAttributeValue("name", ""),
+                            Value = i.GetAttributeValue("value", ""),
+                        };
                         state.ButtonUI = ui;
                         ui.State = state.Clone();
                         UIList.Add(ui);
@@ -719,39 +716,49 @@ namespace otyanoko
                     state.None = true;//nextstate |= State.None;
                 }
 
-                if (i.ChildNodes != null)if(i.ChildNodes.Count>0) getHtml(i.ChildNodes, state);
+                if (i.ChildNodes != null) if (i.ChildNodes.Count > 0) getHtml(i.ChildNodes, state);
                 if (i.Name == "script" || i.Name == "style" || i.Name == "title")
                 {
                     state.None = false;//nextstate &= ~State.None;
                 }
-                if (i.Name == "a" && i.Closed)
+                if (i.Name == "a"/* && i.Closed*/)
                 {
                     state.A = false;//nextstate &= ~State.A;
                     if (state.RenderA) return node;
                 }
-                if (i.Name == "pre" && i.Closed)
+                if (i.Name == "pre"/* && i.Closed*/)
                 {
                     state.Pre = false;//nextstate &= ~State.Pre;
                 }
-                if (i.Name == "dd" && i.Closed)
+                //閉じタグなしに対応
+                if (i.Name == "dt"/* && i.Closed*/)
                 {
                     state.Margin = 0;// margin = 0;
                 }
-                if (i.Name == "p" && i.Closed)
+                if (i.Name == "dl"/* && i.Closed*/)
+                {
+                    state.Margin = 0;// margin = 0;
+                }
+                /*
+                if (i.Name == "dd")
+                {
+                    state.Margin = 0;// margin = 0;
+                }*/
+                if (i.Name == "p"/* && i.Closed*/)
                 {
                     render.WriteLine();
                 }
-                if (i.Name == "q" && i.Closed)
+                if (i.Name == "q"/* && i.Closed*/)
                 {
                     render.Write("\"");
                 }
-                if (i.Name == "button" && i.Closed)
+                if (i.Name == "button"/* && i.Closed*/)
                 {
                     render.Write("]");
-                    if(!renderonly)state.ButtonUI = null;
+                    if (!renderonly) state.ButtonUI = null;
                     state.Button = false;
                 }
-                if (i.Name == "select"&&i.Closed)
+                if (i.Name == "select"/* && i.Closed*/)
                 {
                     if (state.SelectUI.Select.SelectList.Count == 0)
                     {
@@ -775,7 +782,7 @@ namespace otyanoko
                         state.SelectUI.Select.Length[state.SelectUI.Select.Select]
                         );
                 }
-                if (i.Name == "font"&i.Closed)
+                if (i.Name == "font"/* && i.Closed*/)
                 {
                     render.Color.ForegroundColor = OldForeColor;
                     if (backColor)
@@ -788,46 +795,52 @@ namespace otyanoko
                     state.ListMargin -= 1;
                     state.Margin -= 2;
                 }
-                if (i.Name == "form" && i.Closed)
+                if (i.Name == "form"/* && i.Closed*/)
                 {
                     state.Form = null;
                 }
-                if (i.Name == "tr" && i.Closed)
+                if (i.Name == "tr"/* && i.Closed*/)
                 {
                     render.WriteLine();
                 }
-                if (i.Name == "th" && i.Closed)
+                if (i.Name == "th"/* && i.Closed*/)
                 {
                     render.WriteTab();
                 }
-                if (i.Name == "div" && i.Closed)
+                if (i.Name == "div"/* && i.Closed*/)
                 {//divはspanと違って改行する
-                    if(textNone)render.WriteLine();
+                    if (textNone) render.WriteLine();
                 }
                 #region(h)
                 if (i.Name == "h1")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 if (i.Name == "h2")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 if (i.Name == "h3")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 if (i.Name == "h4")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 if (i.Name == "h5")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 if (i.Name == "h6")
                 {
                     render.WriteLine();
+                    render.Color.Under(false);
                 }
                 #endregion
                 count++;
@@ -835,15 +848,5 @@ namespace otyanoko
             }
             return node;
         }
-#endif
-        public static byte[] EncodeB(string arg)
-        {
-            return Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(encode), Encoding.UTF8.GetBytes(arg));
-        }
-        public static string EncodeS(string arg)
-        {
-            return Encoding.GetEncoding(encode).GetString(EncodeB(arg));
-        }
-        public static string DefaultEnctype = "application/x-www-form-urlencoded";
     }
 }

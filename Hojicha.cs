@@ -19,7 +19,7 @@ namespace otyanoko
             ParseHtml(_documentNode);
         }
 
-        public HojichaHtmlNode ParseHtml(HojichaHtmlNode hhn, string parent="")
+        public HojichaHtmlNode ParseHtml(HojichaHtmlNode hhn, bool Option=false)
         {
             int i = hhn.Position;
             bool nameRead = false;
@@ -29,12 +29,46 @@ namespace otyanoko
             string name = "",atr="",atrValue="";
             HojichaAttributeValueQuote Quote = HojichaAttributeValueQuote.DoubleQuote;
             HojichaHtmlNode newChild = new HojichaHtmlNode();
+            newChild.oya = hhn;
             string Text = "";
-            bool isText = true;
+            bool isText = true, isComment = false, CommentType = false; ;//コメントかどうか
+
             bool ClosedType = false;//false=</h1>true<br/>
             while (i<_html.Length)
             {
                 char p = _html[i];
+                if (isComment)
+                {
+                    Text += p;
+                    if (Text == "<!--") CommentType = true;
+                    if (p == '>')
+                    {
+                        if (Text.Length > 6 && CommentType)
+                        {
+                            if (Text.Substring(Text.Length - 3) == "-->")
+                            {
+                                isComment = false;
+                                newChild = new HojichaHtmlNode(HojichaHtmlNode.HtmlNodeTypeNameComment, Text);
+                                newChild.oya = hhn;
+                                Text = "";
+                                isText = true;
+                                hhn.ChildNodes.Add(newChild);
+                            }
+                        }
+                        else
+                        {
+                            isComment = false;
+                            newChild = new HojichaHtmlNode(HojichaHtmlNode.HtmlNodeTypeNameComment, Text);
+
+                            newChild.oya = hhn;
+                            Text = "";
+                            isText = true;
+                            hhn.ChildNodes.Add(newChild);
+                        }
+                    }
+                    //途中で<>がでるとおかしくなるのを防止
+                    i++; hhn.Position = i; continue;
+                }
                 if (p == '/')
                 {
                     if (name == "" && Text == "") { newChild.Closed = true; ClosedType = false; } else ClosedType = true;
@@ -81,7 +115,7 @@ namespace otyanoko
                         {
                             //空の属性と認識
                             if(p != '>')//閉じタグでここに来た場合はひかなくていい
-                                i--;//スペースで飛ばされている分くぉ引く
+                                ;// i--;//スペースで飛ばされている分くぉ引く
                             atrValueNameRead = false;
                             atrRead = false;
                             atrEqualRead = false;
@@ -108,7 +142,8 @@ namespace otyanoko
                         atrValue = "";
                         atr = "";
                         atrNameSearch = true;
-                    }else
+                    }
+                    else
                         if ((p == ' ' || p == '>') && Quote == HojichaAttributeValueQuote.NonQuote)
                         {
                             atrValueRead = false;
@@ -116,8 +151,13 @@ namespace otyanoko
                             atrValue = "";
                             atr = "";
                             atrNameSearch = true;
-                        }else
-                        atrValue += p;
+                        }
+                        else
+                        {
+                            atrValue += p;
+                            //途中で>がでるとおかしくなるのを防止
+                            i++; hhn.Position = i; continue;
+                        }
                 }
                 if (atrEqualRead)
                 {
@@ -149,43 +189,71 @@ namespace otyanoko
 
                 if (nameRead)
                 {
-                    if (p == '/' || p == ' ' || p == '>')
+                    if (/*p == '/' ||*/ p == ' ' || p == '>')
                     {
                         nameRead = false;
                         //if(!newChild.Closed)
                         bool closed = newChild.Closed;
-                            newChild = new HojichaHtmlNode(name);
-                            newChild.Closed = closed;
-                            if (parent == "") parent = newChild.Name;
-                            atrNameSearch = true;
+                        newChild = new HojichaHtmlNode(name.ToLower());
+                        newChild.oya = hhn;
+                        //debugcode
+                        if (name == "a")
+                            name = "a";
+                        newChild.Closed = closed;
+                        //if (parent == "") parent = newChild.Name;
+                        atrNameSearch = true;
                     }
                     else
                     {
-                        if(p!='/')name += p;
+                        if (p != '/') name += p;
+                        if (name == "!")
+                        {
+                            name = "";
+                            Text = "<!";
+                            CommentType = false;
+                            isComment = true;
+                            nameRead = false;
+                        }
                     }
                 }
                 if (isText&&p!='<') Text += p;
                 if (p == '<')
                 {
+
                     if (Text != "")
                     {
-                        newChild = new HojichaHtmlNode("#text",Text);
+                        newChild = new HojichaHtmlNode("#text", Text);
+                        newChild.oya = hhn;
                         hhn.ChildNodes.Add(newChild);
                         Text = "";
-                    } isText = false;
+                        
+                    }
+                    if (Option)
+                    {
+                        hhn.Position--;
+                        // hhn.ChildNodes.Add(newChild);
+                        return hhn;
+                    } 
+                    isText = false;
                     nameRead = true;
                 }
                 
 
                 if (p == '>')
                 {
-                    atrRead = false;
+
+                    if (name == "")
+                    {
+                        isText = true;
+                        i++; hhn.Position = i; continue;
+                    } atrRead = false;
                     atrNameSearch = false;
                     atrValueNameRead = false;
                     atrValueRead = false;
                     isText = true;
                     Text = "";
                     name = "";
+                    ClosedType = false;
                     if (newChild.Closed/*&&(parent==""||parent==newChild.Name)*/)
                     {
                         if (HojichaHtmlNode.ElementsFlags.ContainsKey(newChild.Name))
@@ -193,21 +261,36 @@ namespace otyanoko
                             {
                                 //閉じなくてもいいタグ
                                 //hhn.ChildNodes.Add(newChild);
+                                newChild.Closed = false;
                                 i++;
                                 hhn.Position = i;
                                 continue;
-                            }
+                            }else
+                                if ((HojichaHtmlNode.ElementsFlags[newChild.Name] & HojichaHtmlElementFlag.Optional) == HojichaHtmlElementFlag.Optional)
+                                {
+                                    //閉じなくてもいいタグ
+                                    //hhn.ChildNodes.Add(newChild);
+                                    newChild.Closed = false;
+                                    i++;
+                                    hhn.Position = i;
+                                    continue;
+                                }
+
                         return hhn;
                     }
                     else
                     {
+                        
+                        bool opt = false;
                         if (HojichaHtmlNode.ElementsFlags.ContainsKey(newChild.Name))
                             if ((HojichaHtmlNode.ElementsFlags[newChild.Name] & HojichaHtmlElementFlag.Empty) == HojichaHtmlElementFlag.Empty)
                             {
                                 hhn.ChildNodes.Add(newChild);
-                                i++;
-                                hhn.Position = i;
-                                continue;
+                                i++;hhn.Position = i;continue;
+                            }
+                            else if ((HojichaHtmlNode.ElementsFlags[newChild.Name] & HojichaHtmlElementFlag.Optional) == HojichaHtmlElementFlag.Optional)
+                            {
+                                opt = true;
                             }
                         if (ClosedType)
                         {
@@ -217,17 +300,31 @@ namespace otyanoko
                             hhn.Position = i;
                             continue;
                         }
+
                         hhn.ChildNodes.Add(newChild);
+                        
                         HojichaHtmlNode newNode = new HojichaHtmlNode();
+                        newChild.oya = hhn;
                         //newChild.ChildNodes.Add(newNode);
                         /*newNode*/
                         newChild.Position = i + 1;
-                        i = ParseHtml(newChild/*,newChild.Name*/).Position;
+                        i = ParseHtml(newChild/*,newChild.Name*/,opt).Position;
+                        /**if (opt)
+                        {
+                            return hhn;
+                        }*/
                     }
                     ClosedType = false;
                 }
                 i++;
                 hhn.Position = i;
+            }
+            if (Text != "")
+            {
+                newChild = new HojichaHtmlNode("#text", Text);
+                newChild.oya = hhn;
+                hhn.ChildNodes.Add(newChild);
+                Text = "";
             }
             return hhn;
         }
@@ -235,6 +332,21 @@ namespace otyanoko
     }
     class HojichaHtmlNode
     {
+        public HojichaHtmlNode oya;
+        public HojichaHtmlNode NextSibling
+        {
+            get
+            {
+                try
+                {
+                    return oya.ChildNodes[oya.ChildNodes.IndexOf(this)+1];
+                }
+                catch
+                {
+                    return null;
+                }
+            }
+        }
         static Dictionary<string, HojichaHtmlElementFlag> ctor()
         {
             var ret = new Dictionary<string, HojichaHtmlElementFlag>();
@@ -257,12 +369,15 @@ namespace otyanoko
             ret.Add("area", HojichaHtmlElementFlag.Empty);
             ret.Add("input", HojichaHtmlElementFlag.Empty);
             ret.Add("basefont", HojichaHtmlElementFlag.Empty);
-            ret.Add("option", HojichaHtmlElementFlag.Empty);
+            //ret.Add("option", HojichaHtmlElementFlag.Empty);
             ret.Add("br", HojichaHtmlElementFlag.Empty | HojichaHtmlElementFlag.Closed);
             ret.Add("p", HojichaHtmlElementFlag.Empty | HojichaHtmlElementFlag.Closed);
+            ret.Add("option", HojichaHtmlElementFlag.Empty);
+            ret.Add("dt", HojichaHtmlElementFlag.Empty);
+            ret.Add("dd", HojichaHtmlElementFlag.Empty);
             return ret;
         }
-        Dictionary<string,string> _attributes;
+        Dictionary<string, string> _attributes;
         public Dictionary<string, string> Attributes
         {
             get
@@ -274,19 +389,19 @@ namespace otyanoko
         //     Gets a collection of flags that define specific behaviors for specific element
         //     nodes.  The table contains a DictionaryEntry list with the lowercase tag
         //     name as the Key, and a combination of HtmlElementFlags as the Value.
-        public static Dictionary<string, HojichaHtmlElementFlag> ElementsFlags=ctor();
+        public static Dictionary<string, HojichaHtmlElementFlag> ElementsFlags = ctor();
         //
         // 概要:
         //     Gets the name of a comment node. It is actually defined as '#comment'.
-        public static readonly string HtmlNodeTypeNameComment="#comment";
+        public static readonly string HtmlNodeTypeNameComment = "#comment";
         //
         // 概要:
         //     Gets the name of the document node. It is actually defined as '#document'.
-        public static readonly string HtmlNodeTypeNameDocument="#document";
+        public static readonly string HtmlNodeTypeNameDocument = "#document";
         //
         // 概要:
         //     Gets the name of a text node. It is actually defined as '#text'.
-        public static readonly string HtmlNodeTypeNameText="#text";
+        public static readonly string HtmlNodeTypeNameText = "#text";
         public HojichaHtmlNode()
         {
             _childNodes = new List<HojichaHtmlNode>();
@@ -314,7 +429,7 @@ namespace otyanoko
             {
                 if (_innerText == null)
                 {
-                    return getInnerText(this._childNodes,"");
+                    return getInnerText(this._childNodes, "");
                 }
                 return _innerText;
             }
@@ -324,8 +439,8 @@ namespace otyanoko
         {
             foreach (var i in hhn)
             {
-                if(i.Name=="#text")innerText+=i.InnerText;
-                if (i.ChildNodes != null) innerText=getInnerText(i.ChildNodes, innerText);
+                if (i.Name == "#text") innerText += i.InnerText;
+                if (i.ChildNodes != null) innerText = getInnerText(i.ChildNodes, innerText);
 
             }
             return innerText;
@@ -363,6 +478,21 @@ namespace otyanoko
                 _childNodes = value;
             }
         }
+
+        internal string GetAttributeValue(string p1, string p2)
+        {
+            try
+            {
+                if (this.Attributes.ContainsKey(p1))
+                    return this.Attributes[p1];
+                else
+                    return p2;
+            }
+            catch
+            {
+                return p2;
+            }
+        }
     }
     //MEMO:CDataは中のhtmlを読まない、Emptyは閉じなくてもよい、Closed
     [Flags]
@@ -383,6 +513,10 @@ namespace otyanoko
         // 概要:
         //     The node can overlap.
         CanOverlap = 8,
+        /// <summary>
+        /// End tag: optional
+        /// </summary>
+        Optional=16,
     }
     public enum HojichaAttributeValueQuote
     {

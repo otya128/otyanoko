@@ -1,4 +1,6 @@
-﻿using System;
+﻿#undef HAP
+#define Hojicha
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -82,7 +84,11 @@ namespace otyanoko
         {
             foreach (var i in hhn)
             {
-                Debug.Write(new String(' ', test2i)); Debug.Write(i.Name); Debug.Write("\tInnerText:" + i.InnerText);// Debug.WriteLine(i.Closed);
+                Debug.Write(new String(' ', test2i)); Debug.Write(i.Name); //Debug.Write("\tInnerText:" + i.InnerText);// Debug.WriteLine(i.Closed);
+                foreach (var j in i.Attributes)
+                {
+                    Debug.Write("\t[" + j.Name + ", " +j.Value+"]");
+                } 
                 Debug.WriteLine("");
                 if (i.ChildNodes != null) { test2i++; test2(i.ChildNodes); test2i--; }
 
@@ -101,8 +107,22 @@ namespace otyanoko
             //Console.ReadLine();
             //render.WindowLeft=80;
             //Console.ReadLine();
-            //while (true) ;<h1>test</h>でもh1タグが閉じられる(記述ミスによるstackoverflow防止)
-            string htm = "<html><head><meta _http-equiv=\"_hoge\t\" _hoge=\"_huga\" alt test='single' iron=ore hugee></head><body><h1>test</h1><br><h1>test</h1><nestsuru/><nestsuru/><br><li>hoge</li><li>hoge<li>hoge<h1>test</h>test</body></html>";
+            //while (true) ;<h1>test</h>でもh1タグが閉じられる(記述ミスによるstackoverflow防止) >を含むtextを取得できるように
+            string htm = /*@"<dl class=""thread"">
+<dt>1 ：<a href=""mailto:sage""><b>名無しさんの野望</b></a>：2013/09/14(土) 19:46:27.91 ID:RUzh/S+q<dd> Minecraftは2011/11/18に正式リリースされたサンドボックス型のものづくりゲームです。 <br> レトロゲーを想起させるドットテイストのブロックが溢れる世界で、プレイヤーは建物やその他のものを自由に創造することが出来ます。 <br> ■価格: 19.95 ユーロ <br> 日本円でいくら？→<a href=""https://www.google.co.jp/search?q=19.95EURO"" target=""_blank"">https://www.google.co.jp/search?q=19.95EURO</a> <br> ■無料体験版 <br> 体験版（時間制限付き）：<a href=""http://ime.nu/www.minecraft.net/demo"" target=""_blank"">http://www.minecraft.net/demo</a> <br> クラシック版：サバイバル要素実装前の旧バージョン。セーブ不可、HP、敵mob、サウンドが非実装 <br> 〔購入方法、無料体験版については公式サイト、Wiki等に記載。当スレでは一切の質問を受け付けません〕 <br>  <br> ■関連サイト■ <br> 【公式サイト　　　 　 .】 <a href=""http://ime.nu/www.minecraft.net/"" target=""_blank"">http://www.minecraft.net/</a> <br> 【公式Wiki　　　　　　 】 <a href=""http://ime.nu/minecraftwiki.net/"" target=""_blank"">http://minecraftwiki.net/</a> <br> 【公式Wiki(日本語) . 】 <a href=""http://ime.nu/ja.minecraftwiki.net/"" target=""_blank"">http://ja.minecraftwiki.net/</a>　（公式wikiの日本語訳。翻訳者募集中） <br> 【非公式Wiki　　　　　】 <a href=""http://ime.nu/www26.atwiki.jp/minecraft/"" target=""_blank"">http://www26.atwiki.jp/minecraft/</a> <br> 【フォーラム(英語)　 】 <a href=""http://ime.nu/www.minecraftforum.net/"" target=""_blank"">http://www.minecraftforum.net/</a>　（公式） <br> 【フォーラム(日本語)】 <a href=""http://ime.nu/forum.minecraftuser.jp/index.php"" target=""_blank"">http://forum.minecraftuser.jp/index.php</a>　（非公式　日本ユーザーフォーラム） <br> 【うｐロダ　　 　 　 　 .】 <a href=""http://ime.nu/www39.atpages.jp/minecraftss/"" target=""_blank"">http://www39.atpages.jp/minecraftss/</a> <br> 【うｐロダ予備　　 　 .】 <a href=""http://ime.nu/pc.gban.jp/"" target=""_blank"">http://pc.gban.jp/</a> <br> 【SS板兼避難所(したらば)】 <a href=""http://ime.nu/jbbs.livedoor.jp/bbs/read.cgi/game/54856/"" target=""_blank"">http://jbbs.livedoor.jp/bbs/read.cgi/game/54856/</a> <br>  <br> 関連スレ（質問スレ、MOD、レッドストーン、マルチプレイなど）はPCゲーム板内を「minecraft」でスレッド検索のこと <br>  <br> ※質問や、Modやテクスチャ等の第三者コンテンツの話題は該当スレへ御願いします。 <br> 　動画についてはYouTube板<a href=""http://anago.2ch.net/streaming/"" target=""_blank"">http://anago.2ch.net/streaming/</a>へ。スレに該当しないレスはスルーで。 <br> ※次スレは<a href=""../test/read.cgi/game/1379155587/950"" target=""_blank"">&gt;&gt;950</a>が必ず確認してから宣言して立てるよう徹底してください。立てられない場合は代理を指定。 <br>  <br> ■前スレ■ <br> Minecraft 381ブロック目 <br> <a href=""http://anago.2ch.net/test/read.cgi/game/1378786924"" target=""_blank"">http://anago.2ch.net/test/read.cgi/game/1378786924</a> <br><br>
+</dl>"; */
+                @"<BR/><BR /><BR><DL>
+<DT><STRONG>低価格</STRONG>
+<DD>新バージョンは、
+旧バージョンよりも大幅に値下げしました!
+<DT><STRONG>簡単に使える</STRONG>
+<DD>もっと使いやすくなるように改良しました!
+<DT><STRONG>お子さまにも安全</STRONG>
+<DD>お子さまだけが部屋にいる時でも、
+怪我の心配はありません(ただし保証はしません)
+</DL><BR>";
+                //<option>a</option><option>a</option><test></test><!DOCTYPE html PUBLIC \"-//OPENWAVE//DTD XHTML 1.0//EN\" \"http://www.openwave.com/DTD/xhtml-basic.dtd\"><!--<option>hoge</option><meta test=\">\">hoge2</option>>>> --><hoge></hoge>";
+            //Connect.connect_get("http://chat.kanichat.com/mobile.jsp?roomid=petcwiki", "shift_jis").Replace("\r", "").Replace("\n", "").Replace("  ", " ").Replace("  ", " ").Replace("\t", ""); //"<html><head><meta _http-equiv=\"_hoge\t\" _hoge=\"_huga\" alt test='single' iron=ore hugee></head><body><h1>test</h1><br><h1>test</h1><nestsuru/><nestsuru/><br><li>hoge</li><li>hoge<li>hoge<h1>test</h>test</body></html>";
             var aa = new HojichaHtmlDocument‎();
             aa.LoadHtml(htm);
             var aab = aa.DocumentNode.ChildNodes;
@@ -258,11 +278,18 @@ namespace otyanoko
                 Debug.WriteLine(i);
             }
             HtmlNode.ElementsFlags.Remove("form"); 
+#if HAP
             HtmlDocument doc = new HtmlDocument();// HAP Objectを生成
             //Console.WriteLine("解析中");
             re:
             doc.LoadHtml(html);// HTMLパース
-            
+#endif
+#if Hojicha
+            HojichaHtmlDocument doc = new HojichaHtmlDocument();// HAP Objectを生成
+            //Console.WriteLine("解析中");
+            re:
+            doc.LoadHtml(html);// HTMLパース
+#endif
             var node = doc.DocumentNode.ChildNodes;
             //var tw = new StreamWriter(new MemoryStream(new byte[1024]),Console.OutputEncoding);
             //Console.SetOut(new StreamWriter("hige"));

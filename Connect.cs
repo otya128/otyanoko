@@ -19,8 +19,8 @@ namespace otyanoko
         static public string OSVer = Environment.OSVersion.Version.Major.ToString() + "." + Environment.OSVersion.Version.Minor.ToString();
         static public string CLRVer = Environment.Version.Major.ToString() + "." + Environment.Version.Minor.ToString();
         //otyanoko 1.0;
-        static public string UserAgent = "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36";
-        //"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT " + OSVer + "; .NET CLR " + CLRVer + "; ) otyanoko/1.0";
+        static public string UserAgent = //"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/32.0.1700.19 Safari/537.36";
+        "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT " + OSVer + "; .NET CLR " + CLRVer + "; ) otyanoko/1.0";
         
         static public string connect_get(string uri, string encode, string relativeUri)
         {

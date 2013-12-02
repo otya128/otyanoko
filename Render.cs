@@ -1,4 +1,6 @@
-﻿using ConsoleClassLibrary;
+﻿#undef HAP
+#define Hojicha
+using ConsoleClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -272,7 +274,8 @@ namespace otyanoko
         /// </summary>
         /// <param name="htmlNodeCollection"></param>
         /// <param name="state"></param>
-        internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,StateClass state)
+#if HAP
+internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,StateClass state)
         {
             Core.getHtml(htmlNodeCollection, state,true);
         }
@@ -287,7 +290,7 @@ namespace otyanoko
             hc.Add(htmlNode);
             Core.getHtml(hc, state, true);
         }
-        /// <summary>
+                /// <summary>
         /// 適切にAタグを描画できるように設定し、指定したHtmlNodeとStateClassを利用してHtmlを描画します。
         /// </summary>
         /// <param name="htmlNodeCollection"></param>
@@ -298,6 +301,37 @@ namespace otyanoko
             ss.RenderA = true;
             Core.getHtml(htmlNodeCollection, ss, true);
         }
+#endif
+#if Hojicha
+        internal void RenderHtml(List<HojichaHtmlNode> htmlNodeCollection, StateClass state)
+        {
+            Core.getHtml(htmlNodeCollection, state, true);
+        }
+        /// <summary>
+        /// 指定したHtmlNodeとStateClassを利用してHtmlを描画します。
+        /// </summary>
+        /// <param name="htmlNode"></param>
+        /// <param name="state"></param>
+        internal void RenderHtml(HojichaHtmlNode htmlNode, StateClass state)
+        {
+            var hc = new List<HojichaHtmlNode>();
+            hc.Add(htmlNode);
+            Core.getHtml(hc, state, true);
+        }
+        /// <summary>
+        /// 適切にAタグを描画できるように設定し、指定したHtmlNodeとStateClassを利用してHtmlを描画します。
+        /// </summary>
+        /// <param name="htmlNodeCollection"></param>
+        /// <param name="state"></param>
+        internal void RenderHtmlA(List<HojichaHtmlNode> htmlNodeCollection, StateClass state)
+        {
+            var ss = state.Clone();
+            ss.RenderA = true;
+            Core.getHtml(htmlNodeCollection, ss, true);
+        }
+#endif
+        
+
 
         public void RenderButton(string text)
         {
