@@ -78,6 +78,7 @@ namespace otyanoko
         }
         static public string connect_get(string uri, string encode, NameValueCollection query, out string url_)
         {
+            Console.Title = "接続中...";
             Encoding enc = Encoding.GetEncoding(encode);
             Core.encode = encode;
             string url = uri;

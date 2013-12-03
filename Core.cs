@@ -1,4 +1,6 @@
-﻿using HtmlAgilityPack;
+﻿#if HAP
+using HtmlAgilityPack;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,6 +22,7 @@ namespace otyanoko
         static public string encode = "utf-8";
         static public int ScreenBuffSizeX = 80;
         static public int ScreenBuffSizeY = 25;
+        public static string title = "";
                 public static string url;
                 public static ContentType ContentType = new ContentType("text/html");
 #if HAP
@@ -141,7 +144,7 @@ namespace otyanoko
                 //if (i.Name != "#text"&&i.ChildNodes != null) getHtml(i.ChildNodes);
                 if (i.Name == "title")
                 {
-                    Console.Title = i.InnerText;
+                    title = i.InnerText;//Console.Title = i.InnerText;
                     state.None = true;//nextstate |= State.None;
                 }
                 if (i.Name == "font")
@@ -240,7 +243,7 @@ namespace otyanoko
                     }
                     else
                     {
-                        if (i.InnerText != "")
+                        if (i.InnerText != ""&&i.GetAttributeValue("href", "")!="")
                         {
                             state.A = true;//nextstate |= State.A;
 
@@ -802,7 +805,9 @@ namespace otyanoko
                 }
                 if (i.Name == "div" && i.Closed)
                 {//divはspanと違って改行する
-                    if(textNone)render.WriteLine();
+                    if (i.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "") == "")//if (textNone) 
+                        render.WriteLine(); 
+                    //if (textNone) render.WriteLine();
                 }
                 #region(h)
                 if (i.Name == "h1")
@@ -836,7 +841,7 @@ namespace otyanoko
             return node;
         }
 #endif
-        public static byte[] EncodeB(string arg)
+                public static byte[] EncodeB(string arg)
         {
             return Encoding.Convert(Encoding.UTF8, Encoding.GetEncoding(encode), Encoding.UTF8.GetBytes(arg));
         }

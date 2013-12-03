@@ -11,6 +11,7 @@ namespace otyanoko
 {
     partial class Core
     {
+#if Hojicha
         static public List<HojichaHtmlNode> getHtml(List<HojichaHtmlNode> node)
         {
             return getHtml(node, new StateClass());
@@ -22,7 +23,6 @@ namespace otyanoko
             ConsoleColor OldForeColor = render.Color.ForegroundColor;
             ConsoleColor OldBackColor = render.Color.BackgroundColor;
             bool backColor = false;
-            bool textNone = false;
             foreach (var i in node)
             {
 
@@ -129,8 +129,13 @@ namespace otyanoko
                 //if (i.Name != "#text"&&i.ChildNodes != null) getHtml(i.ChildNodes);
                 if (i.Name == "title")
                 {
-                    Console.Title = i.InnerText;
+                    Core.title = i.InnerText;//Console.Title = i.InnerText;
                     state.None = true;//nextstate |= State.None;
+                }
+                if (i.Name == "b")
+                {
+                    OldForeColor = render.Color.ForegroundColor;
+                    render.Color.ForegroundColor = ConsoleColor.Red;
                 }
                 if (i.Name == "font")
                 {
@@ -169,42 +174,38 @@ namespace otyanoko
                 {
                     case "h1":
                         
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
                         break;
                     case "h2":
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
                         break;
                     case "h3":
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
                         break;
                     case "h4":
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
                         break;
                     case "h5":
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
                         break;
                     case "h6":
-                        render.WriteLine();
+                        render.WriteLine();if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         render.WritePre(" ");
                         render.Color.Under(true);
 
                         break;
                 }
                 #endregion
-                if (i.Name == "table")
-                {
-
-                }
                 if (i.Name == "ul")
                 {
                     state.ListMargin += 1;
@@ -214,7 +215,7 @@ namespace otyanoko
                 {
                     if (i.InnerText != "")
                     {
-                        render.WriteLine();
+                        render.WriteLine(); if (state.Centering) Center.Centering(render, i.ChildNodes[0]);
                         if (state.List)
                         {
 
@@ -236,7 +237,7 @@ namespace otyanoko
                     }
                     else
                     {
-                        if (i.InnerText != "")
+                        if (i.InnerText != ""&&i.GetAttributeValue("href", "")!="")
                         {
                             state.A = true;//nextstate |= State.A;
 
@@ -256,14 +257,14 @@ namespace otyanoko
 
                 if (i.Name == "#text")
                 {
-                    textNone = true;
-                    if (state.A) render.WriteLink(i.InnerText);
-                    else
-                        if (state.Pre)
-                            render.WritePre(i.InnerText);
+                        if (state.A) render.WriteLink(i.InnerText);
                         else
-                            if (!state.None) render.Write(i.InnerText.Replace("\n", ""));
-
+                            if (state.Pre)
+                                render.WritePre(i.InnerText);
+                            else
+                                if (!state.None) render.Write(i.InnerText.Replace("\n", ""));
+                    
+                    
                     /*if (i.NextSibling != null)
                         if (i.NextSibling.Name == "title" || i.NextSibling.Name == "option" || i.NextSibling.Name == "a"
                             ) nextstate |= State.None;
@@ -273,24 +274,26 @@ namespace otyanoko
                 if (i.Name == "br")
                 {
                     render.WriteLine();
+                    if (state.Centering) Center.Centering(render, i.NextSibling);
+                    
                     if (state.Button) render.CursorLeft = state.ButtonUI.CursorLeft;
                     if (state.Margin > 0) render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dd")
                 {
                     state.Margin = 4;//margin = 4;
-                    render.WriteLine();
+                    render.WriteLine(); if (state.Centering) Center.Centering(render, i.NextSibling);
                     if (state.Margin > 0) render.WritePre(new string(' ', state.Margin));
                 }
                 if (i.Name == "dt")
                 {
                     state.Margin = 0;//閉じタグなしに対応
-                    render.WriteLine();//閉じタグなしに対応
+                    render.WriteLine(); if (state.Centering) Center.Centering(render, i.NextSibling);//閉じタグなしに対応
                 }
                 if (i.Name == "hr")
                 {
                     render.WriteLine();
-                    render.WriteLine("―――――――――――――――――――――――――――――――――――――――");
+                    render.WriteLine("―――――――――――――――――――――――――――――――――――――――"); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
 
 
@@ -715,8 +718,14 @@ namespace otyanoko
                 {
                     state.None = true;//nextstate |= State.None;
                 }
-
+                if (i.Name == "center")
+                {
+                    state.Centering = true;
+                    Center.Centering(render, i.ChildNodes[0]);
+                }
+                //=================================================================================
                 if (i.ChildNodes != null) if (i.ChildNodes.Count > 0) getHtml(i.ChildNodes, state);
+                //=================================================================================
                 if (i.Name == "script" || i.Name == "style" || i.Name == "title")
                 {
                     state.None = false;//nextstate &= ~State.None;
@@ -746,7 +755,7 @@ namespace otyanoko
                 }*/
                 if (i.Name == "p"/* && i.Closed*/)
                 {
-                    render.WriteLine();
+                    render.WriteLine(); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "q"/* && i.Closed*/)
                 {
@@ -782,6 +791,10 @@ namespace otyanoko
                         state.SelectUI.Select.Length[state.SelectUI.Select.Select]
                         );
                 }
+                if (i.Name == "b"/* && i.Closed*/)
+                {
+                    render.Color.ForegroundColor = OldForeColor;
+                }
                 if (i.Name == "font"/* && i.Closed*/)
                 {
                     render.Color.ForegroundColor = OldForeColor;
@@ -801,7 +814,7 @@ namespace otyanoko
                 }
                 if (i.Name == "tr"/* && i.Closed*/)
                 {
-                    render.WriteLine();
+                    render.WriteLine(); if (state.Centering) if(i.ChildNodes!=null)if(i.ChildNodes.Count!=0)Center.Centering(render, i.ChildNodes[0]);
                 }
                 if (i.Name == "th"/* && i.Closed*/)
                 {
@@ -809,38 +822,46 @@ namespace otyanoko
                 }
                 if (i.Name == "div"/* && i.Closed*/)
                 {//divはspanと違って改行する
-                    if (textNone) render.WriteLine();
+                    if (i.InnerText.Replace("\r", "").Replace("\n", "").Replace("\t", "").Replace(" ", "") == "")
+                    {//if (textNone) 
+                        render.WriteLine(); if (state.Centering) Center.Centering(render, i.NextSibling);
+                    }
+                }
+                if (i.Name == "center")
+                {
+                    state.Centering = false;
                 }
                 #region(h)
                 if (i.Name == "h1")
                 {
                     render.WriteLine();
                     render.Color.Under(false);
+                    if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "h2")
                 {
                     render.WriteLine();
-                    render.Color.Under(false);
+                    render.Color.Under(false); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "h3")
                 {
                     render.WriteLine();
-                    render.Color.Under(false);
+                    render.Color.Under(false); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "h4")
                 {
                     render.WriteLine();
-                    render.Color.Under(false);
+                    render.Color.Under(false); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "h5")
                 {
                     render.WriteLine();
-                    render.Color.Under(false);
+                    render.Color.Under(false); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 if (i.Name == "h6")
                 {
                     render.WriteLine();
-                    render.Color.Under(false);
+                    render.Color.Under(false); if (state.Centering) Center.Centering(render, i.NextSibling);
                 }
                 #endregion
                 count++;
@@ -848,5 +869,6 @@ namespace otyanoko
             }
             return node;
         }
+#endif
     }
 }

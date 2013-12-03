@@ -1,6 +1,6 @@
-﻿#undef HAP
-#define Hojicha
+﻿#if HAP
 using HtmlAgilityPack;
+#endif
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

@@ -1,6 +1,4 @@
-﻿#undef HAP
-#define Hojicha
-using ConsoleClassLibrary;
+﻿using ConsoleClassLibrary;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +14,14 @@ namespace otyanoko
 {
     class Render
     {
+        //public Center Center;
         public RenderColor Color;
         public UIRender UI;
         public Render()
         {
             this.Color = new RenderColor(this);
             this.UI = new UIRender(this);
+           // this.Center = new Center(this);
         }
         /// <summary>
         /// 指定したコンソールハンドルを使用して、Render クラスの新しいインスタンスを初期化します。
