@@ -15,7 +15,7 @@ namespace otyanoko
             foreach (var next in hhn)
             {
 
-                if (next.Name != "br" && next.Name != "hr" && next.Name != "th") centeringBuff += next.InnerText;
+                if (next.Name != "br" && next.Name != "hr" && next.Name != "input") centeringBuff += next.InnerText;
                     else return centeringBuff;
                     if (next.ChildNodes != null) if (next.ChildNodes.Count != 0) Centering(next.ChildNodes, centeringBuff);
                 
@@ -25,6 +25,7 @@ namespace otyanoko
         }
         public static void Centering(Render rend, HojichaHtmlNode hhn)
         {
+            return;
             string centeringBuff = "";
             var next = hhn;
             while(true)//foreach (var next in hhn)
@@ -32,7 +33,7 @@ namespace otyanoko
                 if (next != null)
                 {
 
-                    if (next.Name != "br" && next.Name != "hr" && next.Name != "th") { if (next.Name == "#text")centeringBuff += next.InnerText; }
+                    if (next.Name != "br" && next.Name != "hr" && next.Name != "input") { if (next.Name == "#text")centeringBuff += next.InnerText; }
                     else break;
                     if (next.ChildNodes != null)if(next.ChildNodes.Count!=0) centeringBuff = Centering(next.ChildNodes,centeringBuff);
                 }

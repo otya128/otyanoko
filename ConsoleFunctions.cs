@@ -237,8 +237,8 @@ namespace ConsoleClassLibrary
 
     // http://pinvoke.net/default.aspx/kernel32/GetNumberOfConsoleMouseButtons.html
     [DllImport("kernel32.dll", SetLastError = true)]
-    static extern public bool GetNumberOfConsoleMouseButtons(
-        ref uint lpNumberOfMouseButtons
+    static unsafe extern public bool GetNumberOfConsoleMouseButtons(
+        ref MOUSE_EVENT_RECORD lpNumberOfMouseButtons
         );
 
     // http://pinvoke.net/default.aspx/kernel32/GetStdHandle.html
@@ -617,15 +617,27 @@ namespace ConsoleClassLibrary
         //public ControlKeyState dwControlKeyState;
         public uint dwControlKeyState;
     }
+    [StructLayout(LayoutKind.Explicit)]
+    public struct MOUSE_EVENT_RECORD
+    {
+        [FieldOffset(0)]
+        public COORD dwMousePosition;
+        [FieldOffset(4), MarshalAs(UnmanagedType.U4)]
+        public uint dwButtonState;
+        [FieldOffset(8), MarshalAs(UnmanagedType.U4)]
+        public uint dwControlKeyState;
+        [FieldOffset(12), MarshalAs(UnmanagedType.U4)]
+        public uint dwEventFlags;
+    }
 
-    [StructLayout(LayoutKind.Sequential)]
+    /*[StructLayout(LayoutKind.Sequential)]
     public struct MOUSE_EVENT_RECORD
     {
         public COORD dwMousePosition;
         public uint dwButtonState;
         public uint dwControlKeyState;
         public uint dwEventFlags;
-    }
+    }*/
 
     public struct WINDOW_BUFFER_SIZE_RECORD
     {

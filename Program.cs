@@ -79,6 +79,75 @@ namespace otyanoko
                 if (i.ChildNodes != null) { testi++; test(i.ChildNodes); testi--; }
 
             }
+        }        static int testcolori = 0;
+        static Render testColorRender = new Render().CreateHandle();
+        static void testColor(List<HojichaHtmlNode> hhn)
+        {
+            foreach (var i in hhn)
+            {
+                testColorRender.WritePre(new String(' ', testcolori));
+                if (i.Name != "#text" && i.Name != "#comment")
+                {
+                    testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta;
+                    testColorRender.Write("<" + i.Name);
+                    testColorRender.Color.OldForegroundColor();
+                    foreach (var j in i.Attributes)
+                    {
+                        testColorRender.Color.ForegroundColor = ConsoleColor.DarkYellow;
+                        testColorRender.Write(" " + j.Key);
+                        testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta; testColorRender.Write("=\"");
+                        testColorRender.Color.ForegroundColor = ConsoleColor.DarkBlue; testColorRender.Write(j.Value);
+                        testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta; testColorRender.Write("\"");
+                    }// Debug.WriteLine(i.Closed);
+                    testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta;
+                    testColorRender.Write(">");
+                    testColorRender.Color.ForegroundColor=ConsoleColor.Gray;
+                }
+                else if (i.Name == "#text")
+                {
+
+                    testColorRender.Write("\"" + i.InnerText + "\"");
+                }
+                else
+                {
+                    testColorRender.Color.ForegroundColor = ConsoleColor.DarkGreen;
+                    testColorRender.Write((i.InnerText));
+                    testColorRender.Color.OldForegroundColor();
+                }
+                testColorRender.WriteLine();
+                if (i.ChildNodes != null)
+                {
+                    testcolori++; testColor(i.ChildNodes); testcolori--;
+                    if (i.Name != "#text" && i.Name != "#comment")
+                    {
+                        if (HojichaHtmlNode.ElementsFlags.ContainsKey(i.Name))
+                        {
+                            if (HojichaHtmlNode.ElementsFlags[i.Name].HasFlag(HojichaHtmlElementFlag.Empty))
+                            {
+                            }
+                            else
+                            {
+                                testColorRender.WritePre(new String(' ', testcolori));
+                                testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta;
+                                testColorRender.Write("</" + i.Name);
+                                testColorRender.Write(">");
+                                testColorRender.Color.ForegroundColor = ConsoleColor.Gray;
+                                testColorRender.WriteLine();
+                            }
+                        }
+                        else
+                        {
+                            testColorRender.WritePre(new String(' ', testcolori));
+                            testColorRender.Color.ForegroundColor = ConsoleColor.DarkMagenta;
+                            testColorRender.Write("</" + i.Name);
+                            testColorRender.Write(">");
+                            testColorRender.Color.ForegroundColor = ConsoleColor.Gray;
+                            testColorRender.WriteLine();
+                        }
+                    }
+                }
+
+            }
         }
 #if HAP
         static int test2i = 0;
@@ -99,10 +168,12 @@ namespace otyanoko
 #endif
         unsafe static void Main(string[] args)
         {
-            var text = "centerああああああああ";
+            render.Color.ForegroundColor = RenderColor.DefaultForeColor;
+            render.Color.BackgroundColor = RenderColor.DefaultBackColor;
+            /*var text = "centerああああああああ";
             Console.WriteLine(text);
             Console.CursorLeft = Console.BufferWidth / 2 - (Render.Scale(text) / 2);
-            Console.WriteLine(text);
+            Console.WriteLine(text);*/
             //Console.ReadLine();
         http://www.cookcomputing.com/blog/archives/000556.html HTTPヘッダがおかしいと例外が出るのを阻止
             //Get the assembly that contains the internal class
@@ -138,7 +209,7 @@ namespace otyanoko
                     }
                 }
             }
-#if true
+#if false
             var window = NULL;//ConsoleFunctions.GetConsoleWindow();
             //var f = new System.Windows.Forms.Form();
             //f.Show();
@@ -169,22 +240,39 @@ today = new Date();
 document.write(today);
 </script>";*/
                 //"<option>a</option><option>a</option><test></test><!DOCTYPE html PUBLIC \"-//OPENWAVE//DTD XHTML 1.0//EN\" \"http://www.openwave.com/DTD/xhtml-basic.dtd\"><!--<option>hoge</option><meta test=\">\">hoge2</option>>>> --><hoge></hoge>";
-            //Connect.connect_get("http://www.geocities.co.jp/Hollywood/9752/index.html", "shift_jis").Replace("<div align=\"right\">", "<DIV ALIGN=right>").Replace("\r", "").Replace("\n", "").Replace("  ", " ").Replace("  ", " ").Replace("\t", ""); 
-            "<html><head><img> / <div>hoge</div><meta _http-equiv=\"_hoge\t\" _hoge=\"_huga\" alt test='single' iron=ore hugee></head><body><h1>test</h1><br><h1>test</h1><nestsuru/><nestsuru/><br><li>hoge</li><li>hoge<li>hoge<h1>test</h>test</body></html>";
+                 Connect.connect_get(
+                 /*"http://www.geocities.co.jp/Hollywood/9752/kokuji.html","shift_jis"*/"http://jbbs.livedoor.jp/computer/43199/", "euc-jp").Replace("</div><a name=\"menu\"></a>", "<a name=\"menu\"></a>").Replace("\r", "").Replace("\n", "").Replace("  ", " ").Replace("  ", " ").Replace("\t", ""); //<img> / <div>hoge</div><meta _http-equiv=\"_hoge\t\" _hoge=\"_huga\" alt test='single' iron=ore hugee>
+            //"<html><head><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><div><!-- 広告部分[E] --></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div></div><a name=\"menu\"></a><div></div>hoge<meta charset=\"utf-8\" /><meta name=\"author\" content=\"Tes.So\" /><link rel=\"index\" href=\"/\" /><link href=\"/favicon.ico\" type=\"image/x-icon\" rel=\"icon\" /><link href=\"/favicon.ico\" type=\"image/x-icon\" rel=\"shortcut icon\" /><link rel=\"stylesheet\" type=\"text/css\" href=\"/css/tesso.css\" /><script type=\"text/javascript\" src=\"/js/jquery.js\"></script><script type=\"text/javascript\" src=\"/js/sns.js\"></script><title>SNS - Tes.So</title></head><body><h1>test</h1><br><h1>test</h1><nestsuru/><nestsuru/><br><li>hoge</li><li>hoge<li>hoge<h1>test</h>test</body></html>";
 
             var aa = new HojichaHtmlDocument‎();
             aa.LoadHtml(htm);
             var aab = aa.DocumentNode.ChildNodes;
             Debug.WriteLine(htm);
             Debug.WriteLine("--------Hojicha--------");
-            test(aab);
+            //test(aab);
+            testColor(aab);
+            testColorRender.Active();
+            /*while (true)
+            {
+                var refref = new ConsoleFunctions.MOUSE_EVENT_RECORD[1];
 
-            /*var aba = new HtmlDocument();
+                fixed (ConsoleFunctions.MOUSE_EVENT_RECORD* p = refref)
+                {
+                    //new UIntPtr(p);
+                    var k = new UIntPtr(p);
+                    ConsoleFunctions.GetNumberOfConsoleMouseButtons(ref refref[0]);
+                }
+                Debug.WriteLine("X={0}\tY={1}", refref[0].dwMousePosition.X, refref[0].dwMousePosition.Y);
+            }*/
+            
+/*
+            var aba = new HtmlDocument();
             aba.LoadHtml(htm);
             var abb = aba.DocumentNode.ChildNodes;
             Debug.WriteLine("----HtmlAgilityPack----");
             //test2(abb);
             */
+            Console.ReadLine();            
             var a=new otyanoko.ContentType("text/html;charset=hogejhoege;URL=hoge");
             Debug.WriteLine(a.CharSet);
             Debug.WriteLine(a.MediaType);
@@ -246,7 +334,8 @@ document.write(today);
             Core.url = "http://google.com";//http://chat.kanichat.com/mobile.jsp?roomid=petcwiki";//http://uni.2ch.net/test/read.cgi/kinoko/1373445002/";
             string html = "";
 
-            html = "<center>hogeaaaaaaaaaaaaa";//html = Connect.connect_get(Core.url, "shift_jis");//wc.DownloadString(url);
+            html = "<center>hogeaaaaaaaaaaaaa";
+            html = Connect.connect_get(Core.url, "euc-jp");//wc.DownloadString(url);
             //Console.BufferHeight = Core.ScreenBuffSizeY;
             //Console.BufferWidth = Core.ScreenBuffSizeX;
         start:
@@ -255,8 +344,7 @@ document.write(today);
             ConsoleFunctions.SetConsoleActiveScreenBuffer(Render.StdHandle);
             //Console.ForegroundColor = RenderColor.DefaultForeColor;
             //Console.BackgroundColor = RenderColor.DefaultBackColor;
-            render.Color.ForegroundColor = RenderColor.DefaultForeColor;
-            render.Color.BackgroundColor = RenderColor.DefaultBackColor;
+
             //Console.Clear();
             //ConsoleFunctions.SetConsoleScreenBufferSize(Render.hSrceen, new ConsoleFunctions.COORD { X=80,Y=25});
             var csbi = new ConsoleFunctions.CONSOLE_SCREEN_BUFFER_INFO();
