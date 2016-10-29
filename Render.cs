@@ -39,7 +39,7 @@ namespace otyanoko
         /// </summary>
         public Render CreateHandle()
         {
-            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
             ConsoleFunctions.SetConsoleScreenBufferSize(this.Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
             return this;
         }
@@ -48,7 +48,7 @@ namespace otyanoko
         /// </summary>
         public Render CreateHandle(int x,int y)
         {
-            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            this.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
             ConsoleFunctions.SetConsoleScreenBufferSize(this.Handle, new ConsoleFunctions.COORD { X = (short)x, Y = (short)y });
             return this;
         }
@@ -562,7 +562,7 @@ internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,S
         [Obsolete("use method CopyToNewRender")]
         public IntPtr CopyToNewBuff()
         {
-            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
             ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
             this.Copy(this.Handle, Handle, (short)this.ScrollY, 25, 0);
             return Handle;
@@ -573,7 +573,7 @@ internal void RenderHtml(HtmlAgilityPack.HtmlNodeCollection htmlNodeCollection,S
         /// <returns>このメソッドが作成する新しい Render</returns>
         public Render CopyToNewRender()
         {
-            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+            var Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
             ConsoleFunctions.SetConsoleScreenBufferSize(Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
             this.Copy(this.Handle, Handle, (short)this.ScrollY, 25, 0);
             return new Render(Handle);

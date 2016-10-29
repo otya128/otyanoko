@@ -354,7 +354,7 @@ document.write(today);
             {
                 tmphScreen = render.Handle;
 
-                render.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+                render.Handle = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
                 render.Color.ForegroundColor = RenderColor.DefaultForeColor;
                 render.Color.BackgroundColor = RenderColor.DefaultBackColor;
                 ConsoleFunctions.SetConsoleScreenBufferSize(render.Handle, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
@@ -496,20 +496,50 @@ document.write(today);
                     {
 
                         string u0 = System.Web.HttpUtility.HtmlDecode(Core.UIList[index].Value);
-                        /*var u1 = new Uri(url);
-                        var u2 = new Uri(u1, u0);
-                        url = u2.ToString();*/
-                        try
+                        string url;
+                        //new Uri(u0);
+                        var uri = new Uri(Connect.relativeUri(Core.url, u0, out url));
+                        if (!String.IsNullOrEmpty(uri.Fragment))
                         {
-                            html = Connect.connect_get(Core.url, Core.encode, u0, out Core.url);//wc.DownloadString(url);
-                            goto start;
+                            if (uri.Fragment.Length >= 1)
+                            {
+                                if (Core.Fragment.ContainsKey(uri.Fragment.Substring(1)))
+                                {
+                                    render.CursorTop = Core.Fragment[uri.Fragment.Substring(1)];
+                                    render.ScrollY = Core.Fragment[uri.Fragment.Substring(1)];
+                                    int jindex = 0;
+                                    foreach (var i in Core.UIList)
+                                    {
+                                        if (i.CursorTop >= render.ScrollY)
+                                        {
+                                            render.UI.RenderUI(Core.UIList[index]);
+                                            index = jindex;
+                                            render.UI.RenderUISelect(Core.UIList[index]);
+                                            key = new ConsoleKeyInfo();
+                                            break;
+                                        }
+                                        jindex++;
+                                    }
+                                }
+                            }
                         }
-                        catch (CancelException)
-                        { }
-                        catch (WebException ex)
+                        else
                         {
-                            html = Connect.connect_error(ex, Core.encode, out Core.url);//wc.DownloadString(url);
-                            goto start;
+                            /*var u1 = new Uri(url);
+                            var u2 = new Uri(u1, u0);
+                            url = u2.ToString();*/
+                            try
+                            {
+                                html = Connect.connect_get(Core.url, Core.encode, u0, out Core.url);//wc.DownloadString(url);
+                                goto start;
+                            }
+                            catch (CancelException)
+                            { }
+                            catch (WebException ex)
+                            {
+                                html = Connect.connect_error(ex, Core.encode, out Core.url);//wc.DownloadString(url);
+                                goto start;
+                            }
                         }
                         
                     }
@@ -750,8 +780,8 @@ document.write(today);
                         //Render.WriteLine(Core.UIList[index].Value);
                         render.CursorTop = Core.ScreenBuffSizeY;
                         render.CursorLeft = 0;
-                        ConsoleFunctions.SetConsoleActiveScreenBuffer(Handle);
                         render.CursorVisible = true;
+                        ConsoleFunctions.SetConsoleActiveScreenBuffer(Handle);
                         //UIProcess.ReadLine();
                         Core.UIList[index].Value = Console.ReadLine();
                         render.CursorVisible = false;
@@ -768,7 +798,7 @@ document.write(today);
                 }
                 if (key.Key == ConsoleKey.T)
                 {
-                    var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001, NULL, 1, NULL);
+                    var hSrceen = ConsoleFunctions.CreateConsoleScreenBuffer(0x80000000U | 0x40000000U, 0x00000001 | 0x00000002, NULL, 1, NULL);
                     ConsoleFunctions.SetConsoleScreenBufferSize(hSrceen, new ConsoleFunctions.COORD { X = (short)Core.ScreenBuffSizeX, Y = (short)Core.ScreenBuffSizeY });
                     render.Copy(render.Handle, hSrceen);
                     var OldhSrceen = render.Handle;

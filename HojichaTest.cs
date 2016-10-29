@@ -1,6 +1,7 @@
 ﻿//using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
@@ -9,9 +10,29 @@ using System.Threading.Tasks;
 //using System.Net.Mime;
 namespace otyanoko
 {
+    public class Fragment
+    {
+        public Fragment(string name, int c)
+        {
+            this.Name = name;
+            this.Cursor = c;
+        }
+        public string Name;
+        public int Cursor;
+    }
     partial class Core
     {
+        //static public List<Fragment> Fragment = new List<Fragment>();
+        static public Dictionary<string, int> Fragment = new Dictionary<string, int>();
 #if Hojicha
+        static public void SetFragment(HojichaHtmlNode node)
+        {
+            if (node.Attributes.ContainsKey("id"))
+            {
+                Fragment[node.Attributes["id"]] = render.CursorTop;
+                //Fragment.Add(new Fragment(node.Attributes["id"], render.CursorTop));
+            }
+        }
         static public List<HojichaHtmlNode> getHtml(List<HojichaHtmlNode> node)
         {
             return getHtml(node, new StateClass());
@@ -233,7 +254,8 @@ namespace otyanoko
                     if (i.GetAttributeValue("name", "") != "")
                     {
                         //<a name は#の指定に使う #は実装予定
-
+                        //Fragment.Add(new Fragment(i.GetAttributeValue("name", ""), render.CursorTop));
+                        Fragment[i.Attributes["name"]] = render.CursorTop;
                     }
                     else
                     {
@@ -257,20 +279,21 @@ namespace otyanoko
 
                 if (i.Name == "#text")
                 {
-                        if (state.A) render.WriteLink(i.InnerText);
+                    if (state.A) render.WriteLink(i.InnerText);
+                    else
+                        if (state.Pre)
+                            render.WritePre(i.InnerText);
                         else
-                            if (state.Pre)
-                                render.WritePre(i.InnerText);
-                            else
-                                if (!state.None) render.Write(i.InnerText.Replace("\n", ""));
-                    
-                    
+                            if (!state.None) render.Write(i.InnerText.Replace("\n", ""));
+
+
                     /*if (i.NextSibling != null)
                         if (i.NextSibling.Name == "title" || i.NextSibling.Name == "option" || i.NextSibling.Name == "a"
                             ) nextstate |= State.None;
                         else nextstate = nextstate&=(~State.None);*/
 
                 }
+                else SetFragment(i);//#textじゃなければidを見る
                 if (i.Name == "br")
                 {
                     render.WriteLine();
